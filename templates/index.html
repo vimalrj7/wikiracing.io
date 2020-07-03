@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WikiRacing.IO</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/main.js')}}"></script>
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/main.css') }}">
+</head>
+
+<body>
+    <div class="centered" id="original-btns">
+        <h1>WikiRacing.io</h1>
+        <form id="form" action="/play" method="get">
+            <input id="username" placeholder="Username" name="username" autofocus required/>
+            <input id="roomcode" placeholder="Enter Room Code" name="roomcode" required  minlength=4 maxlength=4/>
+        </form>
+        <button id="create" class="button">Start a new game</button>
+        <button id="join" class="button">Join an existing game</button>
+    </div>
+</body>
+
+</html>
