@@ -50,7 +50,6 @@ input:focus ~ .label{
 
 
 button:active {
-    width: 300px;
     animation: slide 5s linear forwards;
     visibility: hidden;
 }
@@ -68,3 +67,50 @@ h1 {
     left: 40%;
 }
 
+.fade-appear{
+    opacity: 0;
+}
+
+.fade-appear.fade-appear-active{
+    opacity: 1;
+    transition: opacity 1000 ms linear
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translate3d(0,40px,0)
+    }
+
+    to {
+        transform: translate3d(0,0,0);
+        opacity: 1
+    }
+}
+
+@-webkit-keyframes fadeInUp {
+    from {
+        transform: translate3d(0,40px,0)
+    }
+
+    to {
+        transform: translate3d(0,0,0);
+        opacity: 1
+    }
+}
+
+.animated {
+    animation-duration: 1s;
+    animation-fill-mode: both;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-fill-mode: both
+}
+
+.animatedFadeInUp {
+    opacity: 0
+}
+
+.fadeInUp {
+    opacity: 0;
+    animation-name: fadeInUp;
+    -webkit-animation-name: fadeInUp;
+}

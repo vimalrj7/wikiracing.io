@@ -1,11 +1,31 @@
-import React from 'react';
-import LoginPage from './components/LoginPage';
+import React, { useState } from "react";
+import LoginPage from "./components/LoginPage";
+import Game from "./components/Game";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 function App() {
-  return (
-    <div>
-      <LoginPage/>
-    </div>
+    const [userName, setUserName] = useState("");
+    const [roomCode, setRoomCode] = useState("");
+
+    return (
+        <Router>
+            <div>
+                <Switch>
+                    <Route path="/game">
+                        <Game userName={userName} roomCode={roomCode} />
+                    </Route>
+                    
+                    <Route exact path="/">
+                        <LoginPage
+                            userName={userName}
+                            setUserName={setUserName}
+                            roomCode={roomCode}
+                            setRoomCode={setRoomCode}
+                        />
+                    </Route>
+                </Switch>
+            </div>
+        </Router>
   );
 }
 
