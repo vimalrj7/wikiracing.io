@@ -42,6 +42,11 @@ input:focus{
     border-color: #4285f4;
 }
 
+input.error:focus{
+    border-width: 2px;
+    border-color:#f44336;
+}
+
 input:focus ~ .label{
     top: -10px;
     left: 0px;

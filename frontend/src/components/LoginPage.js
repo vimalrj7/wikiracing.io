@@ -1,74 +1,63 @@
-import React from 'react'
-import './LoginPage.css'
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import React, { useState } from "react";
+import "./LoginPage.css";
+import {useForm, appendErrors} from "react-hook-form";
+import { Redirect, useHistory } from "react-router-dom";
 
-function LoginPage({userName, setUserName, roomCode, setRoomCode}) {
+function LoginPage({ userName, setUserName, roomCode, setRoomCode }) {
+  //animations + route + button change
+  //connect to api to check room+users
+  //validation functions to ensure username is unique
+  //and room is 4 digit + unique
+  //if not valid, stay, otherwise redirect
+  //react-css-transitions
 
-    //animations + route + button change
-    //connect to api to check room+users
-    //validation functions to ensure username is unique
-    //and room is 4 digit + unique
-    //if not valid, stay, otherwise redirect
-    //react-css-transitions
+  const history = useHistory()
+  const { register, handleSubmit, errors } = useForm()
+
+  function onSubmit(data) {
+    console.log('submitted')
+    setUserName(data.userName)
+    setRoomCode(data.roomCode)
+    history.push('/game')
     
-    
-    return (
-        <div class='wrapper'>
-            <h1>WikiRacing.io</h1>
-            <br></br>
+  }
 
-            <Router>
+  return (
+    <div className="wrapper">
+      <h1>WikiRacing.io</h1>
+      <br></br>
+      <div>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <input
+            ref={register({
+                required: true,
+                minLength: 3,
+                maxLength: 20,
+                validate: (input) => input !== 'bob',
+            })}
+            placeholder= {errors.userName ? 'Error!': "Username"}
+            name="userName"
+            className = {errors.userName ? 'error': null}
+          />
 
-            <Route path="/startnewgame">
-                <div>
-                    <input 
-                        placeholder='Username' 
-                        name='userName'
-                        value={userName} 
-                        onChange={e => setUserName(e.target.value)}
-                    />
-                </div>
-            </Route>
+          <br></br>
 
-            <Route exact path="/joingame">
-                <div>
-                    <input 
-                        placeholder='Username' 
-                        name='userName'
-                        value={userName} 
-                        onChange={e => setUserName(e.target.value)}
-                    />
-                    <br></br>
-                    <input 
-                        placeholder="Room Code" 
-                        name="roomCode" 
-                        value={roomCode} 
-                        onChange={e => setRoomCode(e.target.value)}
-                    />
-                    <br></br>
-                </div>
-            </Route>
+          <input
+            ref={register({
+                pattern: /^\d{4}$/
+            })}
+            placeholder="Room Code"
+            name="roomCode"
+            className = {errors.roomCode ? 'error': null}
+          />
 
-
-            <Link to="/startnewgame" onClick={() => setRoomCode(Math.floor(1000 + Math.random() * 9000))}>
-            <button>
-                Start new game
-            </button>
-            </Link>
-
-            <Link to="/joingame">
-            <button>
-                Join exisiting game
-            </button>
-            </Link>
-
-            </Router>
-            
-        </div>
-    )
+          <br></br>
+          <button type='submit'>Start new game</button>
+          <button type='submit'>Join exisiting game</button>
+        </form>
+      </div>
+    </div>
+  );
 }
-
-
-
 
 export default LoginPage;
