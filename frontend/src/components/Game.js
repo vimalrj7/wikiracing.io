@@ -17,7 +17,6 @@ function Game({ userName, roomCode }) {
 
   useEffect(() => {
     
-    
     socket.emit("join", { userName, roomCode });
     socket.on("updateUsers", (userlist) => {
       console.log(Object.values(userlist))
