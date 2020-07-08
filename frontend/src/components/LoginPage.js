@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./LoginPage.css";
 import {useForm, appendErrors} from "react-hook-form";
 import { Redirect, useHistory } from "react-router-dom";
@@ -13,6 +13,15 @@ function LoginPage({ userName, setUserName, roomCode, setRoomCode }) {
 
   const history = useHistory()
   const { register, handleSubmit, errors } = useForm()
+  const [roomList, setRoomList] = useState([]);
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:5000/data').then(res => res.json()).then(data => {
+      console.log(data)
+      setRoomList(data.rooms);
+    });
+  }, []);
+
 
   function onSubmit(data) {
     console.log('submitted')

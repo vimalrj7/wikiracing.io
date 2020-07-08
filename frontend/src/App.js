@@ -14,7 +14,7 @@ function App() {
                     <Route path="/game">
                         <Game userName={userName} roomCode={roomCode} />
                     </Route>
-                    
+
                     <Route exact path="/">
                         <LoginPage
                             userName={userName}
