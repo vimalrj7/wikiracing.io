@@ -32,3 +32,9 @@ class UserDB:
 
     def get_room_users(self, room):
         return {SID: user for SID, user in self.user_list.items() if user['room'] == room}
+    def get_rooms(self):
+        rooms = {room: [] for room in self.room_list}
+        for user in self.user_list.values():
+            rooms[user['room']].append(user['username'])
+        return rooms
+
