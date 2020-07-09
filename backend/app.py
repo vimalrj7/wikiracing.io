@@ -2,6 +2,9 @@ from flask import Flask, render_template, request
 from flask_socketio import SocketIO, send, join_room, leave_room, emit
 from users import UserDB
 from flask_cors import CORS, cross_origin
+import requests
+import requests_cache
+
 
 
 app = Flask(__name__)
@@ -12,6 +15,8 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 db = UserDB()
+
+requests_cache.install_cache()
 
 """
 @app.route('/')
@@ -25,7 +30,19 @@ def play():
 
 @app.route('/data')
 def rooms():
-    return {'rooms': db.room_list, 'users': db.user_list}
+    return db.get_rooms()
+
+@app.route('/wiki/<wikipage>')
+def wikiAPI(wikipage):
+    url = 'https://en.wikipedia.org//w/api.php?action=parse&format=json&page='+wikipage+'&prop=text%7Cdisplaytitle&disablelimitreport=1&disableeditsection=1&formatversion=2'
+    r = requests.get(url)
+    print('From Cache: ', r.from_cache)
+    json_data = r.json()
+    p_html = json_data['parse']['text']
+    title = json_data['parse']['title']
+
+    return render_template('wikipage.html', title=title, p_html=p_html)
+
 
 @socketio.on('join')
 def on_join(data):

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./LoginPage.css";
-import {useForm, appendErrors} from "react-hook-form";
+import {useForm} from "react-hook-form";
 import { Redirect, useHistory } from "react-router-dom";
 
 function LoginPage({ userName, setUserName, roomCode, setRoomCode }) {
@@ -12,23 +12,31 @@ function LoginPage({ userName, setUserName, roomCode, setRoomCode }) {
   //react-css-transitions
 
   const history = useHistory()
-  const { register, handleSubmit, errors } = useForm()
+  const { register, handleSubmit, errors, getValues, setValue } = useForm()
   const [data, setData] = useState({});
 
   useEffect(() => {
     fetch('http://127.0.0.1:5000/data').then(res => res.json()).then(data => {
-      console.log(data)
+      //console.log(data)
       setData(data)
     });
   }, []);
 
+  function generateRoom() {
+    console.log('generating')
+    let room = Math.floor(1000 + Math.random() * 9000)  
+    while (room in data){
+      room = Math.floor(1000 + Math.random() * 9000)
+    } 
+    console.log(room)
+    setValue('roomCode', room)
+  }
 
   function onSubmit(data) {
     console.log('submitted')
     setUserName(data.userName)
     setRoomCode(data.roomCode)
     history.push('/game')
-    
   }
 
   return (
@@ -42,7 +50,11 @@ function LoginPage({ userName, setUserName, roomCode, setRoomCode }) {
                 required: true,
                 minLength: 3,
                 maxLength: 20,
-                validate: (input) => input !== 'bob',
+                validate: (user) => {
+                  const room = getValues('roomCode') //gets me room number
+                  if (Object.keys(data).length === 0 || !(room in data)) {return true}
+                  return !(user in data[room])
+                }
             })}
             placeholder= {errors.userName ? 'Error!': "Username"}
             name="userName"
@@ -53,7 +65,9 @@ function LoginPage({ userName, setUserName, roomCode, setRoomCode }) {
 
           <input
             ref={register({
-                pattern: /^\d{4}$/
+                pattern: /^\d{4}$/,
+                validate: (room) => (room != '0000')
+
             })}
             placeholder="Room Code"
             name="roomCode"
@@ -61,7 +75,7 @@ function LoginPage({ userName, setUserName, roomCode, setRoomCode }) {
           />
 
           <br></br>
-          <button type='submit'>Start new game</button>
+          <button type='submit' onClick= {generateRoom} >Start new game</button>
           <button type='submit'>Join exisiting game</button>
         </form>
       </div>
@@ -70,3 +84,5 @@ function LoginPage({ userName, setUserName, roomCode, setRoomCode }) {
 }
 
 export default LoginPage;
+
+
