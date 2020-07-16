@@ -18,7 +18,7 @@ $(document).ready(function () {
 
     socket.emit('join', { username, roomcode })
 
-    socket.on('userlist', function (userlist) {
+    socket.on('updateUsers', function (userlist) {
         console.log(userlist)
 
         if (userlist[sid].admin == false) {
@@ -49,9 +49,6 @@ $(document).ready(function () {
             $("#sendchat").click();
         }
     });
-
-    $("#startpage").hide()
-
 
     //timer
 

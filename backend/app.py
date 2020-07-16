@@ -18,7 +18,6 @@ db = UserDB()
 
 requests_cache.install_cache()
 
-"""
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -26,7 +25,6 @@ def index():
 @app.route('/play', methods=['GET'])
 def play():
     return render_template('play.html')
-"""
 
 @app.route('/data')
 def rooms():
@@ -34,6 +32,8 @@ def rooms():
 
 @app.route('/wiki/<wikipage>')
 def wikiAPI(wikipage):
+    #if start page: clicks = 0
+    #if end page: redirect to game page
     url = 'https://en.wikipedia.org//w/api.php?action=parse&format=json&page='+wikipage+'&prop=text%7Cdisplaytitle&disablelimitreport=1&disableeditsection=1&formatversion=2'
     r = requests.get(url)
     print('From Cache: ', r.from_cache)
@@ -47,8 +47,8 @@ def wikiAPI(wikipage):
 @socketio.on('join')
 def on_join(data):
     print("Joining!")
-    username = data['userName']
-    room = data['roomCode']
+    username = data['username']
+    room = data['roomcode']
     join_room(room)
 
     db.add_user(request.sid, username, room)
@@ -77,17 +77,6 @@ def message(message):
     send(username+': '+message, broadcast=True, room=room) # send usernamd ane msg (emit?)
 
 
-@socketio.on('starttimer')
-def start_timer():
-    user = db.user_list[request.sid]
-    room = user['room']
-    emit('starttimer', broadcast=True, room=room)
-
-@socketio.on('stoptimer')
-def start_timer():
-    user = db.user_list[request.sid]
-    room = user['room']
-    emit('stoptimer', user, broadcast=True, room=room)
-
 if __name__ == '__main__':
     socketio.run(app, debug=True)
+
