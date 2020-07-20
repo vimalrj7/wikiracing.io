@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
 import Chat from "./Chat"
+import Wiki from "./Wiki"
 import {socket} from "./Socket"
 
 function Game({ userName, roomCode }) {
   //connect socket.io properly
-  //timer stuff
   //design the page
   //divide into components
   //work on wiki stuff
@@ -44,6 +44,10 @@ function Game({ userName, roomCode }) {
       <h2>Users:</h2>
       <ul>{userItems}</ul>
       <Chat />
+
+    <Route path="/wiki/:page"
+
+
       
     </div>
   );

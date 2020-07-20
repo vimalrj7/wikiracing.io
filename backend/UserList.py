@@ -1,3 +1,5 @@
+from User import User
+
 class UserList:
     
     def __init__(self, user_list = {}, room_list = []):
@@ -27,7 +29,7 @@ class UserList:
         return removed
 
     def get_room_users(self, room):
-        return {sid: user for sid, user in self.user_list.items() if user.room == room}
+        return {sid: user.export() for sid, user in self.user_list.items() if user.room == room}
 
     def export(self):
         return {sid: user.export() for sid, user in self.user_list.items()}

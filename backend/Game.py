@@ -8,7 +8,11 @@ class Game:
         self.start_page = choose_start()
         self.target_page = choose_target()
         self.users = users
-        
+
+    def refresh(self):
+        self.start_game = choose_start()
+        self.target_page = choose_target()
+
     def choose_start(self):
         pages = ['Lionel_Messi', 'Cristiano_Ronaldo', 'Canada', 'NBA']
         self.start_page = random.choice(pages)

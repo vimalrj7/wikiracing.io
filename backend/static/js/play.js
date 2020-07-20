@@ -50,38 +50,6 @@ $(document).ready(function () {
         }
     });
 
-    //timer
-
-    var timer = new easytimer.Timer();
-
-    $('#timer .startButton').click(function () {
-        socket.emit('starttimer')
-        timer.start();
-        $("#startpage").show();
-    });
-
-    socket.on('starttimer', () => {
-        timer.start()
-        $("#startpage").show();
-    })
-
-    $('#timer .stopButton').click(function () {
-        socket.emit('stoptimer')
-        timer.stop();
-    });
-
-    socket.on('stoptimer', (user) => {
-        timer.stop()
-        $('#timer').html('<h3>'+user.username+' won!</h3>')
-    })
-
-    timer.addEventListener('secondsUpdated', function (e) {
-        $('#timer .timer-val').html(timer.getTimeValues().toString());
-    });
-
-    timer.addEventListener('started', function (e) {
-        $('#timer .timer-val').html(timer.getTimeValues().toString());
-    });
 
 
 });

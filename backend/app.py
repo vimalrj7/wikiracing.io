@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, send, join_room, leave_room, emit
-from users import UserDB
+from User import User
+from UserList import UserList
+from Game import Game
+from Page import Page
 from flask_cors import CORS, cross_origin
 import requests
 import requests_cache
@@ -8,13 +11,14 @@ import requests_cache
 
 
 app = Flask(__name__)
-CORS(app)
+#CORS(app)
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, cors_allowed_origins="*")
+#socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app)
 
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+#app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-db = UserDB()
+db = UserList()
 
 requests_cache.install_cache()
 
@@ -26,9 +30,6 @@ def index():
 def play():
     return render_template('play.html')
 
-@app.route('/data')
-def rooms():
-    return db.get_rooms()
 
 @app.route('/wiki/<wikipage>')
 def wikiAPI(wikipage):
@@ -43,7 +44,6 @@ def wikiAPI(wikipage):
 
     return render_template('wikipage.html', title=title, p_html=p_html)
 
-
 @socketio.on('join')
 def on_join(data):
     print("Joining!")
@@ -51,29 +51,32 @@ def on_join(data):
     room = data['roomcode']
     join_room(room)
 
-    db.add_user(request.sid, username, room)
-    room_list = db.get_room_users(room)
+    user = User(username, request.sid, room)
+    db.add_user(user)
 
-    emit('updateUsers', room_list, broadcast=True, room=room)
+    room_data = db.get_room_users(room)
 
-    print(db)
+    emit('updateUsers', room_data, broadcast = True, room = room)
+
+    print(db.export())
 
 @socketio.on('disconnect')
 def on_leave():
+    print('Disconnect!')
     user = db.delete_user(request.sid)
-    room = user['room']
-    room_list = db.get_room_users(room)
+    room = user.room
+    room_data = db.get_room_users(room)
 
-    emit('updateUsers', room_list, broadcast = True, room = room)
-    print('disconnection!')
-    print(db)
+    emit('updateUsers', room_data, broadcast = True, room = room)
+    
+    print(db.export())
 
  
 @socketio.on('message')
 def message(message):
     user = db.user_list[request.sid]
-    username = user['username']
-    room = user['room']
+    username = user.username
+    room = user.room
     send(username+': '+message, broadcast=True, room=room) # send usernamd ane msg (emit?)
 
 
