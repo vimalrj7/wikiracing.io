@@ -6,6 +6,9 @@ class UserList:
         self.user_list = user_list
         self.room_list = room_list
 
+    def get_user(self, sid):
+        return self.user_list[sid]
+
     def add_user(self, user):
         user.admin = False if user.room in self.room_list else True
         self.user_list[user.sid] = user
@@ -28,8 +31,10 @@ class UserList:
 
         return removed
 
-    def get_room_users(self, room):
-        return {sid: user.export() for sid, user in self.user_list.items() if user.room == room}
+    def get_room_users(self, room, json = False):
+        if json:
+            return {sid: user.export() for sid, user in self.user_list.items() if user.room == room}
+        return UserList({sid: user for sid, user in self.user_list.items() if user.room == room}, self.room_list)
 
     def export(self):
         return {sid: user.export() for sid, user in self.user_list.items()}

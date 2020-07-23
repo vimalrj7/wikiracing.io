@@ -5,33 +5,33 @@ from UserList import UserList
 class Game:
 
     def __init__(self, users):
-        self.start_page = choose_start()
-        self.target_page = choose_target()
+        self.start_page = None
+        self.target_page = None
         self.users = users
+        self.refresh()
 
     def refresh(self):
-        self.start_game = choose_start()
-        self.target_page = choose_target()
+        self.start_game = self.choose_start()
+        self.target_page = self.choose_target()
 
     def choose_start(self):
         pages = ['Lionel_Messi', 'Cristiano_Ronaldo', 'Canada', 'NBA']
         self.start_page = random.choice(pages)
         
-    
     def choose_target(self):
         pages = ['Lionel_Messi', 'Cristiano_Ronaldo', 'Canada', 'NBA']
         while self.target_page != self.start_page:
             self.target_page = random.choice(pages)
     
     def start_game(self):
-        for user in users.user_list:
+        for user in self.users.user_list.values():
             user.clicks = 0
             user.current_page = None
 
         #what else to start game?
 
-    def update_game(self, sid, page):
-        user = users.get_user(sid)
+    def update_game(self, sid, page=None):
+        user = self.users.get_user(sid)
         user.current_page = page
 
         if user.current_page == self.target_page:
@@ -40,7 +40,7 @@ class Game:
             user.clicks += 1
 
     def end_game(self, sid):
-        winner = users.get_user(sid)
+        winner = self.users.get_user(sid)
         winner.wins += 1
         
         #anything else

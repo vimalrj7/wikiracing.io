@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import LoginPage from "./components/LoginPage";
 import Game from "./components/Game";
+import WikiPage from "./components/WikiPage";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 function App() {
@@ -23,6 +24,9 @@ function App() {
                             setRoomCode={setRoomCode}
                         />
                     </Route>
+
+                    <Route path="/wiki/:wikiPage" children={<WikiPage roomCode={roomCode}/>} />
+
                 </Switch>
             </div>
         </Router>

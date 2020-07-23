@@ -11,52 +11,46 @@ import requests_cache
 
 
 app = Flask(__name__)
-#CORS(app)
+CORS(app)
 app.config['SECRET_KEY'] = 'secret!'
-#socketio = SocketIO(app, cors_allowed_origins="*")
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-#app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
 
 db = UserList()
+games = {}
 
 requests_cache.install_cache()
 
-@app.route('/')
+""" @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/play', methods=['GET'])
 def play():
     return render_template('play.html')
-
-
-@app.route('/wiki/<wikipage>')
-def wikiAPI(wikipage):
-    #if start page: clicks = 0
-    #if end page: redirect to game page
-    url = 'https://en.wikipedia.org//w/api.php?action=parse&format=json&page='+wikipage+'&prop=text%7Cdisplaytitle&disablelimitreport=1&disableeditsection=1&formatversion=2'
-    r = requests.get(url)
-    print('From Cache: ', r.from_cache)
-    json_data = r.json()
-    p_html = json_data['parse']['text']
-    title = json_data['parse']['title']
-
-    return render_template('wikipage.html', title=title, p_html=p_html)
+ """
 
 @socketio.on('join')
 def on_join(data):
     print("Joining!")
-    username = data['username']
-    room = data['roomcode']
+    username = data['userName']
+    room = data['roomCode']
     join_room(room)
 
     user = User(username, request.sid, room)
     db.add_user(user)
 
-    room_data = db.get_room_users(room)
+    if room not in games:
+        games[room] = Game(db.get_room_users(room))
+
+    print('FLAG', db.get_room_users(room))
+
+    room_data = db.get_room_users(room, json=True)
 
     emit('updateUsers', room_data, broadcast = True, room = room)
+    emit('updateGame', game_data, broadcast=True, room=room)
 
     print(db.export())
 
@@ -71,7 +65,57 @@ def on_leave():
     
     print(db.export())
 
- 
+
+@socketio.on('startGame')
+def start_game(data):
+    room = data['roomCode']
+    game = games[room]
+
+    game.start_game()
+
+    game_data = game.export()
+    emit('updateGame', game_data, broadcast=True, room=room)
+
+@socketio.on('updateGame')
+def update_game(data):
+    room = data['roomCode']
+    #page = data['page']
+    game = games[room]
+
+    game.update_game(request.sid)
+
+    game_data = game.export()
+    print(game_data)
+    emit('updateGame', game_data, broadcast=True, room=room)
+
+@socketio.on('endGame')
+def end_game(data):
+    room = data['roomCode']
+    game = games[room]
+
+    game.end_game(request.sid)
+
+    game_data = game.export()
+    emit('updateGame', game_data, broadcast=True, room=room)
+
+@socketio.on('randomize')
+def randomize(data):
+    room = data['roomCode']
+    game = games[room]
+
+    game.refresh()
+
+    emit('updateGame', game_data, broadcast=True, room=room)
+
+@socketio.on('getWikiPage')
+def get_wikipage(data):
+    page_name = data['wikiPage']
+
+    page = Page(page_name).export()
+
+    emit('wikiPage', page)
+
+
 @socketio.on('message')
 def message(message):
     user = db.user_list[request.sid]

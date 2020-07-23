@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Redirect } from "react-router-dom";
+import { Redirect, Link } from "react-router-dom";
 import Chat from "./Chat"
-import Wiki from "./Wiki"
+import Wiki from "./WikiPage"
+import Users from "./Users"
+//import Settings from "./Settings"
 import {socket} from "./Socket"
 
 function Game({ userName, roomCode }) {
@@ -12,43 +14,45 @@ function Game({ userName, roomCode }) {
 
   
 
-  const [users, setUsers] = useState([]);
+  const [userData, setUserData] = useState([]);
+  const [gameData, setGameData] = useState({});
   
 
   useEffect(() => {
     
-    socket.emit("join", { userName, roomCode });
+    console.log('Mounted')
+    socket.emit('join', { userName, roomCode });
+    socket.emit('updateGame', {roomCode});
+
     socket.on("updateUsers", (userlist) => {
       console.log(Object.values(userlist))
-      setUsers(Object.values(userlist));
+      setUserData(Object.values(userlist));
     });
 
-    return () => {
-      socket.disconnect();
-    };
+    socket.on("updateGame", (gamedata) => {
+      console.log(gamedata)
+      setGameData(gamedata);
+    });
+
   }, []);
 
 
-  const userItems = users.map((element) => (
-    <li key={element.sid}>{element.username}</li>
-  ));
+
 
   return userName === "" ? (
     <Redirect to="/" />
   ) : (
-    <div>
-      <h1>Game Page</h1>
-      <h2>
-        {userName} {roomCode}
-      </h2>
-      <h2>Users:</h2>
-      <ul>{userItems}</ul>
-      <Chat />
-
-    <Route path="/wiki/:page"
-
-
       
+      <div>
+        <h1>Game Page</h1>
+        <h2>
+          {userName} {roomCode}
+        </h2>
+      <Users userData={userData}/>
+      <Chat/>
+      <Link to="/wiki/Soup">Start Page</Link>
+
+       
     </div>
   );
 }

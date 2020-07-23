@@ -15,12 +15,12 @@ function LoginPage({ userName, setUserName, roomCode, setRoomCode }) {
   const { register, handleSubmit, errors, getValues, setValue } = useForm()
   const [data, setData] = useState({});
 
-  useEffect(() => {
+/*   useEffect(() => {
     fetch('http://127.0.0.1:5000/data').then(res => res.json()).then(data => {
       //console.log(data)
       setData(data)
     });
-  }, []);
+  }, []); */
 
   function generateRoom() {
     console.log('generating')
@@ -50,11 +50,11 @@ function LoginPage({ userName, setUserName, roomCode, setRoomCode }) {
                 required: true,
                 minLength: 3,
                 maxLength: 20,
-                validate: (user) => {
+                /* validate: (user) => {
                   const room = getValues('roomCode') //gets me room number
                   if (Object.keys(data).length === 0 || !(room in data)) {return true}
                   return !(user in data[room])
-                }
+                } */
             })}
             placeholder= {errors.userName ? 'Error!': "Username"}
             name="userName"
