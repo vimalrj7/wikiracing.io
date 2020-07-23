@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import {useForm, appendErrors} from "react-hook-form";
 import {socket} from "./Socket"
 
-function Chat() {
+function Chat({userName, roomCode}) {
 
     const [chatMSGS, setchatMSGS] = useState([]);
     const { register, handleSubmit, errors } = useForm();
@@ -16,7 +16,7 @@ function Chat() {
     
 
     function onChat(data) {
-        socket.send(data.chatMSG)
+        socket.emit({userName, roomCode, 'message': data.chatMSG})
         console.log(chatMSGS)
       }
 

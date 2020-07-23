@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 from flask_socketio import SocketIO, send, join_room, leave_room, emit
 from User import User
 from UserList import UserList
-from Game import Game
+from Room import Room
 from Page import Page
 from flask_cors import CORS, cross_origin
 import requests
@@ -18,8 +18,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 
-db = UserList()
-games = {}
+rooms = {}
 
 requests_cache.install_cache()
 
@@ -36,76 +35,84 @@ def play():
 def on_join(data):
     print("Joining!")
     username = data['userName']
-    room = data['roomCode']
-    join_room(room)
+    room_code = data['roomCode']
+    
 
-    user = User(username, request.sid, room)
-    db.add_user(user)
+    user = User(username, request.sid, room_code)
 
-    if room not in games:
-        games[room] = Game(db.get_room_users(room))
+    if room_code not in rooms:
+        rooms[room_code] = Room()
+    
+    rooms[room_code].users.add_user(user)
+    join_room(room_code)
 
-    print('FLAG', db.get_room_users(room))
+    room_data = rooms[room_code].export()
 
-    room_data = db.get_room_users(room, json=True)
+    print(rooms)
+    print("-------------------------------------------")
+    for room in rooms.values():
+        print(room.export())
 
-    emit('updateUsers', room_data, broadcast = True, room = room)
-    emit('updateGame', game_data, broadcast=True, room=room)
+    emit('updateRoom', room_data, broadcast=True, room=room_code)
 
-    print(db.export())
 
 @socketio.on('disconnect')
 def on_leave():
     print('Disconnect!')
-    user = db.delete_user(request.sid)
-    room = user.room
-    room_data = db.get_room_users(room)
 
-    emit('updateUsers', room_data, broadcast = True, room = room)
+    for room in rooms.values():
+        if room.users.delete_user(request.sid):
+            room_code = room.users.user_list[request.sid].room
+            break
     
-    print(db.export())
+    leave_room(room_code)
+    room_data = rooms[room_code].export()
+            
+    emit('updateRoom', room_data, broadcast = True, room = room_code)
 
 
 @socketio.on('startGame')
 def start_game(data):
-    room = data['roomCode']
-    game = games[room]
+    room_code = data['roomCode']
 
-    game.start_game()
+    room = rooms[room_code]
 
-    game_data = game.export()
-    emit('updateGame', game_data, broadcast=True, room=room)
+    room.start_game()
 
-@socketio.on('updateGame')
-def update_game(data):
-    room = data['roomCode']
+    room_data = room.export()
+    emit('updateRoom', room_data, broadcast=True, room=room_code)
+
+@socketio.on('updateRoom')
+def update_room(data):
+    room_code = data['roomCode']
     #page = data['page']
-    game = games[room]
+    room = rooms[room_code]
 
-    game.update_game(request.sid)
+    room.update_game(request.sid)
 
-    game_data = game.export()
-    print(game_data)
-    emit('updateGame', game_data, broadcast=True, room=room)
+    room_data = room.export()
+    print(room_data)
+
+    emit('updateRoom', room_data, broadcast=True, room=room_code)
 
 @socketio.on('endGame')
 def end_game(data):
-    room = data['roomCode']
-    game = games[room]
+    room_code = data['roomCode']
+    room = rooms[room_code]
 
-    game.end_game(request.sid)
+    room.end_game(request.sid)
 
-    game_data = game.export()
-    emit('updateGame', game_data, broadcast=True, room=room)
+    room_data = room.export()
+    emit('updateGame', room_data, broadcast=True, room=room_code)
 
 @socketio.on('randomize')
 def randomize(data):
-    room = data['roomCode']
-    game = games[room]
+    room_code = data['roomCode']
+    room = rooms[room_code]
 
-    game.refresh()
+    room.refresh()
 
-    emit('updateGame', game_data, broadcast=True, room=room)
+    emit('updateRoom', room_data, broadcast=True, room=room_code)
 
 @socketio.on('getWikiPage')
 def get_wikipage(data):
@@ -117,11 +124,12 @@ def get_wikipage(data):
 
 
 @socketio.on('message')
-def message(message):
-    user = db.user_list[request.sid]
-    username = user.username
-    room = user.room
-    send(username+': '+message, broadcast=True, room=room) # send usernamd ane msg (emit?)
+def message(data):
+    message = data['message']
+    user_name = data['userName']
+    room_code = data['roomCode']
+
+    send(user_name+': '+message, broadcast=True, room=room_code)
 
 
 if __name__ == '__main__':

@@ -7,31 +7,20 @@ import Users from "./Users"
 import {socket} from "./Socket"
 
 function Game({ userName, roomCode }) {
-  //connect socket.io properly
-  //design the page
-  //divide into components
-  //work on wiki stuff
 
-  
 
-  const [userData, setUserData] = useState([]);
-  const [gameData, setGameData] = useState({});
+  const [roomData, setRoomData] = useState({});
   
 
   useEffect(() => {
     
     console.log('Mounted')
     socket.emit('join', { userName, roomCode });
-    socket.emit('updateGame', {roomCode});
+    //socket.emit('updateRoom', {roomCode});
 
-    socket.on("updateUsers", (userlist) => {
-      console.log(Object.values(userlist))
-      setUserData(Object.values(userlist));
-    });
-
-    socket.on("updateGame", (gamedata) => {
-      console.log(gamedata)
-      setGameData(gamedata);
+    socket.on("updateRoom", (room_data) => {
+      console.log(room_data)
+      setRoomData(room_data);
     });
 
   }, []);
@@ -48,8 +37,8 @@ function Game({ userName, roomCode }) {
         <h2>
           {userName} {roomCode}
         </h2>
-      <Users userData={userData}/>
-      <Chat/>
+      <Users roomData={roomData}/>
+      <Chat userName={userName} roomCode={roomCode}/>
       <Link to="/wiki/Soup">Start Page</Link>
 
        

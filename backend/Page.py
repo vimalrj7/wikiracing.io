@@ -40,6 +40,7 @@ bottom = '''
     </div>
   </body>
     '''
+    
 class Page:
 
     def __init__(self, wikipage):

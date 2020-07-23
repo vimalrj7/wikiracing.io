@@ -2,12 +2,12 @@ import random
 from User import User
 from UserList import UserList
 
-class Game:
+class Room:
 
-    def __init__(self, users):
+    def __init__(self):
         self.start_page = None
         self.target_page = None
-        self.users = users
+        self.users = UserList()
         self.refresh()
 
     def refresh(self):
@@ -20,7 +20,7 @@ class Game:
         
     def choose_target(self):
         pages = ['Lionel_Messi', 'Cristiano_Ronaldo', 'Canada', 'NBA']
-        while self.target_page != self.start_page:
+        while self.target_page == self.start_page:
             self.target_page = random.choice(pages)
     
     def start_game(self):
@@ -48,7 +48,7 @@ class Game:
         self.start_game()
 
     def export(self):
-        return {'start_page': self.start_page, 
+        return {'start_page': self.start_page,      #add exports and conver to Paage class
                 'target_page': self.target_page,
                 'users': self.users.export()}
 
