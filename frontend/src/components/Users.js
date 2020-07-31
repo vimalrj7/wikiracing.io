@@ -2,17 +2,13 @@ import React from 'react';
 
 function Users({ roomData }) {
 
-    console.log(roomData['users'])
-
-    //const userItems = Object.values(roomData['users']).map((element) => (
-    //   <li key={element.sid}>{element.username}</li>
-    //  ));
+    console.log('Users component recieves',roomData['users'])
 
     return (
         <div>
 
         <h2>Users:</h2>
-        {/* <ul>{userItems}</ul> */}
+
         </div>
 
     )

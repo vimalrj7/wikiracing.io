@@ -51,7 +51,7 @@ class Page:
 
         self.title = json_data['parse']['title']
 
-        self.html = top+self.title+middle+json_data['parse']['text']+bottom
+        self.html = top+self.title+middle+json_data['parse']['text']+bottom.replace('href', 'to')
 
     def export(self):
         return {'html': self.html}

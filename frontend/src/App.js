@@ -25,9 +25,12 @@ function App() {
                         />
                     </Route>
 
+
                     <Route path="/wiki/:wikiPage" children={<WikiPage roomCode={roomCode}/>} />
 
-                </Switch>
+                    </Switch>
+
+
             </div>
         </Router>
   );

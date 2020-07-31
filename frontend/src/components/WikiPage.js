@@ -1,38 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { socket } from './Socket';
-import { useParams, Redirect } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { socket } from "./Socket";
+import { useParams, Redirect, Link } from "react-router-dom";
+import ReactHTMLParser, { convertNodeToElement } from "react-html-parser";
 
-function WikiPage({roomCode}) {
+function WikiPage({ roomCode }) {
 
-    const [pageData, setPageData] = useState({});
-    let { wikiPage } = useParams();
-    console.log(wikiPage)
-    console.log(roomCode)
 
-    
+  const [pageData, setPageData] = useState({});
+  let { wikiPage } = useParams();
+
   useEffect(() => {
+    console.log("Parameter: ", wikiPage);
+    socket.emit("updatePage", { roomCode, wikiPage });
 
-    socket.emit('getWikiPage', { wikiPage })
-    console.log(wikiPage)
+    socket.on("updatePage", (pageData) => {
+      console.log("Recived updatePage");
+      setPageData(pageData);
+    });
+  }, [wikiPage]);
 
-    socket.on('wikiPage', (wikiPage) => {
-        console.log(wikiPage)
-        setPageData(wikiPage)
-    })
+  function transform(node, index) {
+    if (node.type === "tag" && node.name === "a") {
+      let text = node.children[0] ? node.children[0].data : 'NOT FOUND'
+    return <Link to={node.attribs.href}>{text}</Link>
 
-    socket.emit('updateGame', {roomCode})
-    console.log(roomCode)
+    }
+  } 
 
-  }, []);
-    
   return roomCode === "" ? (
     <Redirect to="/" />
   ) : (
-        <div>
-            <div dangerouslySetInnerHTML={{ __html: pageData['html'] }} />
-        </div>
-    )
-    
+    <div>
+      <div>{ReactHTMLParser(pageData["html"], { transform: transform })}</div>
+    </div>
+  );
 }
 
 export default WikiPage;

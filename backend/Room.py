@@ -2,26 +2,15 @@ import random
 from User import User
 from UserList import UserList
 
+
+
 class Room:
 
     def __init__(self):
-        self.start_page = None
-        self.target_page = None
+        self.pages = ['Lionel_Messi', 'Cristiano_Ronaldo', 'Canada']
+        self.start_page = random.choice(self.pages)
+        self.target_page = random.choice(self.pages)
         self.users = UserList()
-        self.refresh()
-
-    def refresh(self):
-        self.start_game = self.choose_start()
-        self.target_page = self.choose_target()
-
-    def choose_start(self):
-        pages = ['Lionel_Messi', 'Cristiano_Ronaldo', 'Canada', 'NBA']
-        self.start_page = random.choice(pages)
-        
-    def choose_target(self):
-        pages = ['Lionel_Messi', 'Cristiano_Ronaldo', 'Canada', 'NBA']
-        while self.target_page == self.start_page:
-            self.target_page = random.choice(pages)
     
     def start_game(self):
         for user in self.users.user_list.values():
@@ -30,12 +19,12 @@ class Room:
 
         #what else to start game?
 
-    def update_game(self, sid, page=None):
+    def update_game(self, sid, page):
         user = self.users.get_user(sid)
         user.current_page = page
 
         if user.current_page == self.target_page:
-            end_game()
+            self.end_game(sid)
         else:
             user.clicks += 1
 
@@ -48,7 +37,7 @@ class Room:
         self.start_game()
 
     def export(self):
-        return {'start_page': self.start_page,      #add exports and conver to Paage class
+        return {'start_page': self.start_page,      #add exports and conver to Page class
                 'target_page': self.target_page,
                 'users': self.users.export()}
 

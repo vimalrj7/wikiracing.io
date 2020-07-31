@@ -37,23 +37,19 @@ def on_join(data):
     username = data['userName']
     room_code = data['roomCode']
     
+    if username != '':
+        user = User(username, request.sid, room_code)
 
-    user = User(username, request.sid, room_code)
+        if room_code not in rooms:
+            rooms[room_code] = Room()
+        
+        rooms[room_code].users.add_user(user)
+        join_room(room_code)
 
-    if room_code not in rooms:
-        rooms[room_code] = Room()
-    
-    rooms[room_code].users.add_user(user)
-    join_room(room_code)
+        room_data = rooms[room_code].export()
+        print(room_data)
 
-    room_data = rooms[room_code].export()
-
-    print(rooms)
-    print("-------------------------------------------")
-    for room in rooms.values():
-        print(room.export())
-
-    emit('updateRoom', room_data, broadcast=True, room=room_code)
+        emit('updateRoom', room_data, broadcast=True, room=room_code)
 
 
 @socketio.on('disconnect')
@@ -71,8 +67,9 @@ def on_leave():
     emit('updateRoom', room_data, broadcast = True, room = room_code)
 
 
-@socketio.on('startGame')
+@socketio.on('startRound')
 def start_game(data):
+    print("Starting Game!")
     room_code = data['roomCode']
 
     room = rooms[room_code]
@@ -80,20 +77,18 @@ def start_game(data):
     room.start_game()
 
     room_data = room.export()
-    emit('updateRoom', room_data, broadcast=True, room=room_code)
+    emit('startRound', broadcast=True, room=room_code)
 
-@socketio.on('updateRoom')
+""" @socketio.on('updateRoom')
 def update_room(data):
+    print('Updating!')
     room_code = data['roomCode']
-    #page = data['page']
     room = rooms[room_code]
-
-    room.update_game(request.sid)
 
     room_data = room.export()
     print(room_data)
 
-    emit('updateRoom', room_data, broadcast=True, room=room_code)
+    emit('updateRoom', room_data, broadcast=True, room=room_code) """
 
 @socketio.on('endGame')
 def end_game(data):
@@ -103,27 +98,33 @@ def end_game(data):
     room.end_game(request.sid)
 
     room_data = room.export()
-    emit('updateGame', room_data, broadcast=True, room=room_code)
+    emit('endRound', broadcast=True, room=room_code)
 
-@socketio.on('randomize')
+""" @socketio.on('randomize')
 def randomize(data):
     room_code = data['roomCode']
     room = rooms[room_code]
 
     room.refresh()
 
-    emit('updateRoom', room_data, broadcast=True, room=room_code)
+    emit('updateRoom', room_data, broadcast=True, room=room_code) """
 
-@socketio.on('getWikiPage')
+@socketio.on('updatePage')
 def get_wikipage(data):
+    print('Updating PAGE!')
+    room_code = data['roomCode']
     page_name = data['wikiPage']
+    room = rooms[room_code]
+
+    room.update_game(request.sid, page_name)
 
     page = Page(page_name).export()
 
-    emit('wikiPage', page)
+    emit('updatePage', page)
 
 
 @socketio.on('message')
+
 def message(data):
     message = data['message']
     user_name = data['userName']

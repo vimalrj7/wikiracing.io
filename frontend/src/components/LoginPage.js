@@ -23,17 +23,14 @@ function LoginPage({ userName, setUserName, roomCode, setRoomCode }) {
   }, []); */
 
   function generateRoom() {
-    console.log('generating')
     let room = Math.floor(1000 + Math.random() * 9000)  
     while (room in data){
       room = Math.floor(1000 + Math.random() * 9000)
     } 
-    console.log(room)
     setValue('roomCode', room)
   }
 
   function onSubmit(data) {
-    console.log('submitted')
     setUserName(data.userName)
     setRoomCode(data.roomCode)
     history.push('/game')
