@@ -17,13 +17,14 @@ function WikiPage({ roomCode }) {
     socket.on("updatePage", (pageData) => {
       console.log("Received updatePage");
       setPageData(pageData);
+      window.scrollTo(0, 0)
     });
 
     socket.on("endRound", () => {
       console.log('Receving endRound call')
-      history.push('/game')
+      setTimeout(() => {history.push('/game')}, 2000)
+      
     })
-
 
 
   }, [wikiPage]);

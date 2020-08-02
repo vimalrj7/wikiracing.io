@@ -25,7 +25,6 @@ function Game({ userName, roomCode }) {
 
     socket.on("startRound", (data) => {
       console.log('Recived startRound with redirect to', data['startPage'])
-      setInterval{}
       history.push(`/wiki/${data['startPage']}`)
   
     })
@@ -34,7 +33,6 @@ function Game({ userName, roomCode }) {
 
   function handleStart(e) {
     console.log('Emitting startRound')
-
     socket.emit("startRound", {roomCode})
 
   }

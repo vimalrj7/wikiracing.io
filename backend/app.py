@@ -53,15 +53,18 @@ def on_join(data):
 def on_leave():
     print('Disconnect!')
 
-    for room in rooms.values():
-        if room.delete_user(request.sid):
-            room_code = room.users[request.sid].room
+    for code, room in rooms.items():
+        if removed := room.delete_user(request.sid):
+            room_code = code
+            leave_room(room_code)
+            if room.users == {}:
+                del rooms[code]
             break
     
-    leave_room(room_code)
-    room_data = rooms[room_code].export()
-            
-    emit('updateRoom', room_data, broadcast = True, room = room_code)
+    if room_code in rooms:
+        room_data = rooms[room_code].export()
+        emit('updateRoom', room_data, broadcast = True, room = room_code)
+
 
 
 @socketio.on('startRound')

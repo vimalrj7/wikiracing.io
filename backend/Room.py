@@ -8,9 +8,7 @@ class Room:
         with open('pages.txt', 'r') as pages:
             self.starts = pages.readline().split()
             self.targets = pages.readline().split()
-            
-        self.starts = ['Real_Madrid_CF']    
-        self.targets = ['Cristiano_Ronaldo']    
+              
         self.start_page = random.choice(self.starts)
         self.target_page = random.choice(self.targets)
         self.users = {}
@@ -29,12 +27,11 @@ class Room:
 
     def delete_user(self, sid):
         removed = self.users.pop(sid, None)
-        if removed and removed.admin:
-            users[next(iter(self.users))].admin = True
+        if removed and removed.admin and self.users != {}:
+            self.users[next(iter(self.users))].admin = True
         return removed
 
     #ROOM METHODS
-
     def randomize_pages(self):
         self.start_page = random.choice(self.starts)
         self.target_page = random.choice(self.targets)
@@ -67,7 +64,6 @@ class Room:
         self.rounds += 1
 
         self.randomize_pages()
-
 
     def export(self):
         return {'start_page': self.start_page,
