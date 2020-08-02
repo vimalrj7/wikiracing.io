@@ -18,7 +18,7 @@ $(document).ready(function () {
 
     socket.emit('join', { userName, roomCode })
 
-    socket.on('updateUsers', function (userlist) {
+    socket.on('updateUseWrs', function (userlist) {
         console.log(userlist)
 
         if (userlist[sid].admin == false) {

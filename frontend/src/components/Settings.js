@@ -11,7 +11,6 @@ function Settings({ roomData }) {
     function handleRandomize(e) {
         console.log('Emitting Randomize', roomCode)
         socket.emit("randomizePages", {roomCode})
-    
       }
 
     return (

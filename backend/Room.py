@@ -5,11 +5,9 @@ from User import User
 class Room:
 
     def __init__(self, room_code):
-        #maybe we can set up the list in the page class 
-        #and actually get the html here instead of the list
-        #with open('pages.txt', 'r') as pages:
-        #    self.starts = pages.readline().split()
-        #    self.targets = pages.readline().split()
+        with open('pages.txt', 'r') as pages:
+            self.starts = pages.readline().split()
+            self.targets = pages.readline().split()
             
         self.starts = ['Real_Madrid_CF']    
         self.targets = ['Cristiano_Ronaldo']    
@@ -50,8 +48,6 @@ class Room:
             user.clicks = -1
             user.current_page = None
 
-        #what else to start game?
-
     def update_game(self, sid, page):
         user = self.get_user(sid)
         user.current_page = page
@@ -74,7 +70,7 @@ class Room:
 
 
     def export(self):
-        return {'start_page': self.start_page,      #add exports and conver to Page class
+        return {'start_page': self.start_page,
                 'target_page': self.target_page,
                 'room_code': self.room_code,
                 'users': {sid: user.export() for sid, user in self.users.items()}}
