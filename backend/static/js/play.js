@@ -2,7 +2,7 @@ $(document).ready(function () {
 
     console.log('Ready')
 
-    const { username, roomcode } = Qs.parse(location.search, {
+    const { userName, roomCode } = Qs.parse(location.search, {
         ignoreQueryPrefix: true
     });
 
@@ -16,7 +16,7 @@ $(document).ready(function () {
         sid = socket.id;
     });
 
-    socket.emit('join', { username, roomcode })
+    socket.emit('join', { userName, roomCode })
 
     socket.on('updateUsers', function (userlist) {
         console.log(userlist)

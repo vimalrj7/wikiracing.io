@@ -7,15 +7,17 @@ class Room:
     def __init__(self, room_code):
         #maybe we can set up the list in the page class 
         #and actually get the html here instead of the list
-        with open('pages.txt', 'r') as pages:
-            self.starts = pages.readline().split()
-            self.targets = pages.readline().split()
+        #with open('pages.txt', 'r') as pages:
+        #    self.starts = pages.readline().split()
+        #    self.targets = pages.readline().split()
             
+        self.starts = ['Real_Madrid_CF']    
+        self.targets = ['Cristiano_Ronaldo']    
         self.start_page = random.choice(self.starts)
         self.target_page = random.choice(self.targets)
         self.users = {}
         self.room_code = room_code
-        self.rounds = 0
+        self.rounds = 1
         self.round_end = False
     
     #USER METHODS
@@ -23,13 +25,14 @@ class Room:
         return self.users[sid]
 
     def add_user(self, username, sid):
-        self.users[sid] = User(username, sid)
-        if len(self.users) == 1: self.users[sid].admin = True
+        if sid not in self.users:
+            self.users[sid] = User(username, sid)
+            if len(self.users) == 1: self.users[sid].admin = True
 
     def delete_user(self, sid):
         removed = self.users.pop(sid, None)
         if removed and removed.admin:
-            self.users[next(iter(self.users))].admin = True
+            users[next(iter(self.users))].admin = True
         return removed
 
     #ROOM METHODS
@@ -37,12 +40,14 @@ class Room:
     def randomize_pages(self):
         self.start_page = random.choice(self.starts)
         self.target_page = random.choice(self.targets)
+        print(self.export())
 
     def start_game(self):
         print('Starting game internally!')
+        print(self.export())
         self.round_end = False
         for user in self.users.values():
-            user.clicks = 0
+            user.clicks = -1
             user.current_page = None
 
         #what else to start game?
@@ -55,7 +60,7 @@ class Room:
 
         user.clicks += 1
 
-        if user.current_page == self.target_page:
+        if user.current_page.lower() == self.target_page.lower():
             self.end_game(sid)
 
     def end_game(self, sid):

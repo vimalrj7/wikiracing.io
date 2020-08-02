@@ -14,7 +14,7 @@ function Game({ userName, roomCode }) {
 
 
   useEffect(() => {
-    
+
     socket.emit('join', { userName, roomCode });
     console.log('Joined Room', roomCode)
 
@@ -25,16 +25,16 @@ function Game({ userName, roomCode }) {
 
     socket.on("startRound", (data) => {
       console.log('Recived startRound with redirect to', data['startPage'])
+      setInterval{}
       history.push(`/wiki/${data['startPage']}`)
   
     })
-
-
 
   }, []);
 
   function handleStart(e) {
     console.log('Emitting startRound')
+
     socket.emit("startRound", {roomCode})
 
   }
@@ -53,7 +53,7 @@ function Game({ userName, roomCode }) {
       <Chat userName={userName} roomCode={roomCode}/>
       <Settings roomData={roomData}/>
       <button onClick={handleStart}>Start Game!</button>
- 
+
 
 
        

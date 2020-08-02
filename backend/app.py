@@ -19,7 +19,8 @@ rooms = {}
 
 requests_cache.install_cache()
 
-""" @app.route('/')
+""" 
+@app.route('/')
 def index():
     return render_template('index.html')
 
@@ -73,7 +74,6 @@ def start_game(data):
     room.start_game()
 
     room_data = room.export()
-    print('STARTING WITH PAGE', room_data)
     emit('startRound', {'startPage': room.start_page}, broadcast=True, room=room_code)
 
 @socketio.on('updateRoom')
@@ -87,26 +87,16 @@ def update_room(data):
 
     emit('updateRoom', room_data, broadcast=True, room=room_code)
 
-""" @socketio.on('endGame')
-def end_game(data):
-    room_code = data['roomCode']
-    room = rooms[room_code]
-
-    room.end_game(request.sid)
-    room.end_game(request.sid)
-
-    room_data = room.export()
-    emit('endRound', broadcast=True, room=room_code) """
 
 @socketio.on('randomizePages')
 def randomize(data):
+    'Recived Randomize emit'
     room_code = data['roomCode']
     room = rooms[room_code]
-    room_data = room.export()
 
     room.randomize_pages()
 
-    print('RANDOMIZED ===== ', room_data)
+    room_data = room.export()
 
     emit('updateRoom', room_data, broadcast=True, room=room_code)
 
