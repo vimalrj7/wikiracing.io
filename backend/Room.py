@@ -1,59 +1,75 @@
 import random
 from User import User
-from UserList import UserList
-
 
 
 class Room:
 
-    def __init__(self):
+    def __init__(self, room_code):
         #maybe we can set up the list in the page class 
         #and actually get the html here instead of the list
-        self.pages = ['Lionel_Messi', 'Cristiano_Ronaldo', 'Canada']
-        self.start_page = random.choice(self.pages)
-        self.target_page = random.choice(self.pages)
+        with open('pages.txt', 'r') as pages:
+            self.starts = pages.readline().split()
+            self.targets = pages.readline().split()
+            
+        self.start_page = random.choice(self.starts)
+        self.target_page = random.choice(self.targets)
         self.users = {}
+        self.room_code = room_code
+        self.rounds = 0
+        self.round_end = False
     
     #USER METHODS
     def get_user(self, sid):
         return self.users[sid]
 
-    def add_user(self, user):
-        if self.users == {}: user.admin = True 
-        self.users[user.sid] = user
+    def add_user(self, username, sid):
+        self.users[sid] = User(username, sid)
+        if len(self.users) == 1: self.users[sid].admin = True
 
     def delete_user(self, sid):
         removed = self.users.pop(sid, None)
         if removed and removed.admin:
-            users[next(iter(self.users))].admin = True
+            self.users[next(iter(self.users))].admin = True
         return removed
 
     #ROOM METHODS
+
+    def randomize_pages(self):
+        self.start_page = random.choice(self.starts)
+        self.target_page = random.choice(self.targets)
+
     def start_game(self):
-        for user in self.users.users.values():
+        print('Starting game internally!')
+        self.round_end = False
+        for user in self.users.values():
             user.clicks = 0
             user.current_page = None
 
         #what else to start game?
 
     def update_game(self, sid, page):
-        user = self.users.get_user(sid)
+        user = self.get_user(sid)
         user.current_page = page
+        print('Updating Game Internally, pa')
+        print(user.username, '+' ,user.current_page)
+
+        user.clicks += 1
 
         if user.current_page == self.target_page:
             self.end_game(sid)
-        else:
-            user.clicks += 1
 
     def end_game(self, sid):
-        winner = self.users.get_user(sid)
+        print('Ending game internally, flag changed')
+        self.round_end = True
+        winner = self.get_user(sid)
         winner.wins += 1
-        
-        #anything else
+        self.rounds += 1
 
-        self.start_game()
+        self.randomize_pages()
+
 
     def export(self):
         return {'start_page': self.start_page,      #add exports and conver to Page class
                 'target_page': self.target_page,
+                'room_code': self.room_code,
                 'users': {sid: user.export() for sid, user in self.users.items()}}

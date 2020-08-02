@@ -3,7 +3,7 @@ import requests_cache
 import json
 
 requests_cache.install_cache()
-top = '''<body><link
+top = '''<link
       rel="stylesheet"
       href="https://en.wikipedia.org/w/load.php?lang=en&amp;modules=site.styles&amp;only=styles&amp;skin=vector"
     />
@@ -38,7 +38,6 @@ bottom = '''
         </div>
       </div>
     </div>
-  </body>
     '''
     
 class Page:

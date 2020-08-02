@@ -9,19 +9,19 @@ function Chat({userName, roomCode}) {
 
 
     useEffect(() => {
-        socket.on("message", (msg) => {
+        socket.on("chatMSG", (msg) => {
             setchatMSGS((prev) => [...prev, msg]);
           });
     }, [])
     
 
     function onChat(data) {
-        socket.emit({userName, roomCode, 'message': data.chatMSG})
+        socket.emit('chatMSG', {userName, roomCode, 'message': data.chatMSG})
         console.log(chatMSGS)
       }
 
       const msgItems = chatMSGS.map((msg) => (
-        <li>{msg}</li>
+      <li key={msg['message']}><b>{msg['username']}:</b> {msg['message']}</li>
           ));
 
 

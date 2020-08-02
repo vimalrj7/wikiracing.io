@@ -1,14 +1,11 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, send, join_room, leave_room, emit
 from User import User
-from UserList import UserList
 from Room import Room
 from Page import Page
 from flask_cors import CORS, cross_origin
 import requests
 import requests_cache
-
-
 
 app = Flask(__name__)
 CORS(app)
@@ -38,12 +35,11 @@ def on_join(data):
     room_code = data['roomCode']
     
     if username != '':
-        user = User(username, request.sid, room_code)
 
         if room_code not in rooms:
-            rooms[room_code] = Room()
+            rooms[room_code] = Room(room_code)
         
-        rooms[room_code].users.add_user(user)
+        rooms[room_code].add_user(username, request.sid)
         join_room(room_code)
 
         room_data = rooms[room_code].export()
@@ -57,8 +53,8 @@ def on_leave():
     print('Disconnect!')
 
     for room in rooms.values():
-        if room.users.delete_user(request.sid):
-            room_code = room.users.user_list[request.sid].room
+        if room.delete_user(request.sid):
+            room_code = room.users[request.sid].room
             break
     
     leave_room(room_code)
@@ -77,9 +73,10 @@ def start_game(data):
     room.start_game()
 
     room_data = room.export()
-    emit('startRound', broadcast=True, room=room_code)
+    print('STARTING WITH PAGE', room_data)
+    emit('startRound', {'startPage': room.start_page}, broadcast=True, room=room_code)
 
-""" @socketio.on('updateRoom')
+@socketio.on('updateRoom')
 def update_room(data):
     print('Updating!')
     room_code = data['roomCode']
@@ -88,49 +85,60 @@ def update_room(data):
     room_data = room.export()
     print(room_data)
 
-    emit('updateRoom', room_data, broadcast=True, room=room_code) """
+    emit('updateRoom', room_data, broadcast=True, room=room_code)
 
-@socketio.on('endGame')
+""" @socketio.on('endGame')
 def end_game(data):
     room_code = data['roomCode']
     room = rooms[room_code]
 
     room.end_game(request.sid)
+    room.end_game(request.sid)
 
     room_data = room.export()
-    emit('endRound', broadcast=True, room=room_code)
+    emit('endRound', broadcast=True, room=room_code) """
 
-""" @socketio.on('randomize')
+@socketio.on('randomizePages')
 def randomize(data):
     room_code = data['roomCode']
     room = rooms[room_code]
+    room_data = room.export()
 
-    room.refresh()
+    room.randomize_pages()
 
-    emit('updateRoom', room_data, broadcast=True, room=room_code) """
+    print('RANDOMIZED ===== ', room_data)
+
+    emit('updateRoom', room_data, broadcast=True, room=room_code)
 
 @socketio.on('updatePage')
 def get_wikipage(data):
-    print('Updating PAGE!')
+    print('UPDATING PAGE')
     room_code = data['roomCode']
     page_name = data['wikiPage']
     room = rooms[room_code]
-
-    room.update_game(request.sid, page_name)
 
     page = Page(page_name).export()
 
     emit('updatePage', page)
 
+    room.update_game(request.sid, page_name)
 
-@socketio.on('message')
+    if room.round_end:
+        print('ENDING GAME') 
+        emit('endRound', broadcast=True, room=room_code)
 
+
+
+@socketio.on('chatMSG')
 def message(data):
+    print('SENDING MESG')
     message = data['message']
     user_name = data['userName']
     room_code = data['roomCode']
 
-    send(user_name+': '+message, broadcast=True, room=room_code)
+    msg_item = {'username': user_name, 'message': message}
+
+    emit('chatMSG', msg_item, broadcast=True, room=room_code)
 
 
 if __name__ == '__main__':
