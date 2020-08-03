@@ -5,10 +5,12 @@ from User import User
 class Room:
 
     def __init__(self, room_code):
-        with open('pages.txt', 'r') as pages:
-            self.starts = pages.readline().split()
-            self.targets = pages.readline().split()
-              
+        #with open('pages.txt', 'r') as pages:
+        #    self.starts = pages.readline().split()
+        #    self.targets = pages.readline().split()
+
+        self.starts = ['Real_Madrid_CF']      
+        self.targets = ['Cristiano_Ronaldo']      
         self.start_page = random.choice(self.starts)
         self.target_page = random.choice(self.targets)
         self.users = {}

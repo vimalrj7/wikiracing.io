@@ -1,0 +1,10 @@
+.chatContainer{
+    height: 300px;
+    width: 400px;
+    overflow: auto;
+    border: solid 1px #dfdfdf;
+}
+
+.msgContainer{
+    color: #424242;
+}

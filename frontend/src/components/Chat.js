@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {useForm, appendErrors} from "react-hook-form";
 import {socket} from "./Socket"
+import './Chat.css'
 
 function Chat({userName, roomCode}) {
 
     const [chatMSGS, setchatMSGS] = useState([]);
-    const { register, handleSubmit, errors } = useForm();
+    const { register, handleSubmit, errors, reset } = useForm();
 
 
     useEffect(() => {
@@ -15,28 +16,32 @@ function Chat({userName, roomCode}) {
     }, [])
     
 
-    function onChat(data) {
+    function onChat(data, e) {
         socket.emit('chatMSG', {userName, roomCode, 'message': data.chatMSG})
         console.log(chatMSGS)
+        e.target.reset()
       }
 
       const msgItems = chatMSGS.map((msg) => (
-      <li key={msg['message']}><b>{msg['username']}:</b> {msg['message']}</li>
+      <div className='msgContainer'><p key={msg['message']}><b>{msg['username']}:</b> {msg['message']}</p></div>
           ));
 
 
   return(
       <div>
       <h1>Chat</h1>
-      <ul>{msgItems}</ul>
-      <form onSubmit={handleSubmit(onChat)}>
+      <div className="chatContainer">
+          {msgItems}
+        </div>
+      <form autocomplete = 'off' onSubmit={handleSubmit(onChat)}>
         <input 
+            autocomplete = 'off'
             name="chatMSG"
-            placeholder="Say hi!"
+            placeholder="Send message"
             ref={register({
                 required: true})}
             />
-        <button type="submit">Send!</button>
+        <button type="submit">Send</button>
       </form>
       </div>
   )

@@ -22,7 +22,7 @@ function WikiPage({ roomCode }) {
 
     socket.on("endRound", () => {
       console.log('Receving endRound call')
-      setTimeout(() => {history.push('/game')}, 2000)
+      setTimeout(() => {history.push(`/game/${roomCode}`)}, 2000)
       
     })
 

@@ -12,19 +12,15 @@ function App() {
         <Router>
             <div>
                 <Switch>
-                    <Route path="/game">
-                        <Game userName={userName} roomCode={roomCode} />
-                    </Route>
+                    <Route path="/game/:room" children={<Game userName={userName} roomCode={roomCode}/>} />
 
                     <Route exact path="/">
                         <LoginPage
                             userName={userName}
                             setUserName={setUserName}
                             roomCode={roomCode}
-                            setRoomCode={setRoomCode}
-                        />
+                            setRoomCode={setRoomCode}/>
                     </Route>
-
 
                     <Route path="/wiki/:wikiPage" children={<WikiPage roomCode={roomCode}/>} />
 
