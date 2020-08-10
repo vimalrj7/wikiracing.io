@@ -5,6 +5,7 @@ import Wiki from "./WikiPage"
 import Users from "./Users"
 import Settings from "./Settings"
 import {socket} from "./Socket"
+import "./Game.css";
 
 function Game({ userName, roomCode }) {
 
@@ -41,22 +42,36 @@ function Game({ userName, roomCode }) {
   return userName === "" ? (
     <Redirect to="/" />
   ) : (
-      
-      <div>
-        <h1>Game Page</h1>
-        <h2>
-          {userName} {roomCode}
-        </h2>
+
+      /*<div>
+      <h1 className="room-code">Room #{roomCode}</h1>
       <Users roomData={roomData}/>
       <Chat userName={userName} roomCode={roomCode}/>
       <Settings roomData={roomData}/>
       <button onClick={handleStart}>Start Game!</button>
+      </div>*/
 
+      <div className='game-wrapper'>
 
+      <div className='grid-container grid-header'>
+      <h1 className='room-code'>Room #{roomCode}</h1>
+      </div>
+      <div className='grid-container grid-users'>
+      <Users roomData={roomData}/>
+      </div>
+      <div className='grid-container grid-settings'>
+      <Settings roomData={roomData}/>
+      </div>
+      <div className='grid-container grid-chat'>
+      <Chat userName={userName} roomCode={roomCode}/>
+      </div>
+      <div className='grid-container grid-start'>
+      <button className='main-button' onClick={handleStart}>Start Game!</button>
+      </div>
+      </div>
 
-       
-    </div>
   );
+
 }
 
 export default Game;

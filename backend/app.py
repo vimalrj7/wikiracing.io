@@ -133,6 +133,16 @@ def message(data):
 
     emit('chatMSG', msg_item, broadcast=True, room=room_code)
 
+@socketio.on('validateData')
+def validate_data():
+    print('Sending data for validation!')
+
+    json_data = {}
+
+    for code, room in rooms.items():
+        json_data[code] = room.export()
+
+    emit('validateData', json_data)
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

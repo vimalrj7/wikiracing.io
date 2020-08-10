@@ -1,0 +1,41 @@
+.options-container {
+    border: solid #424242;
+    padding: 10px;
+    border-radius: 5px;
+    height: 100%;
+    background-color: #E57373;
+}
+
+.options-container h2 {
+    letter-spacing: 5px;
+    color: #424242;
+    font-family: Hack, monospace;
+    text-align: center;
+    margin: 10px;
+}
+
+.options-container h2::before {
+    font-size: 18px;
+    content: "⚙️";
+}
+
+.page-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.page-container {
+    border: solid grey;
+}
+
+.random-btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+}
+
+.random-btn {
+    padding: 10px;
+}

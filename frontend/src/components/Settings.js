@@ -1,5 +1,6 @@
 import React from 'react';
 import {socket} from "./Socket"
+import "./Settings.css"
 
 function Settings({ roomData }) {
 
@@ -14,13 +15,19 @@ function Settings({ roomData }) {
       }
 
     return (
-        <div>
-        <h2> Settings</h2>
-
+        <div className="options-container">       
+        <h2>OPTIONS</h2>
+        <div className="page-row">
+        <div className="page-container">
         <h3>Start Page: {startPage}</h3>
+        </div>
+        <div className="page-container">
         <h3>Target Page: {targetPage}</h3>
-        <button onClick={handleRandomize}>Randomize Pages</button>
-
+        </div>
+        </div>
+        <div className="random-btn-container">
+        <button className="random-btn" onClick={handleRandomize}>Randomize Pages</button>
+        </div>
         </div>
     )
 }

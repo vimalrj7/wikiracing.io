@@ -1,10 +1,51 @@
-.chatContainer{
-    height: 300px;
-    width: 400px;
-    overflow: auto;
-    border: solid 1px #dfdfdf;
+h2 {
+    font-family: Hack, monospace;
+    text-align: center;
+    margin: 0;
 }
 
-.msgContainer{
-    color: #424242;
+.chat-container {
+    border: solid salmon;
+    height: 100%;
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.messages-container {
+    background-color: #e9e9e9;
+    height:300px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    text-align: left;
+    padding: 3px;
+}
+
+.chat-form-container {
+    width: 100%;
+    margin: 10px 5px;
+}
+
+.chat-form-container button {
+    padding: 3px 5px;
+    
+    
+
+}
+
+.chat-form-container input {
+    border: 0;
+    font-family: inherit;
+    font-size: 100%;
+    line-height: normal;
+    margin: 5px;
+    padding: 5px;
+}
+
+hr {
+    background: gray;
+    border: 0;
+    box-sizing: content-box;
+    height: 1px;
+    margin: 5px;
 }

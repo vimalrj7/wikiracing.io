@@ -23,16 +23,17 @@ function Chat({userName, roomCode}) {
       }
 
       const msgItems = chatMSGS.map((msg) => (
-      <div className='msgContainer'><p key={msg['message']}><b>{msg['username']}:</b> {msg['message']}</p></div>
+      <div className='msgContainer'><p key={msg['message']}><b>{msg['username']}:</b> {msg['message']}</p><hr/></div>
           ));
 
 
   return(
-      <div>
-      <h1>Chat</h1>
-      <div className="chatContainer">
+      <div className='chat-container'>
+      <h2>Chat</h2>
+      <div className="messages-container">
           {msgItems}
-        </div>
+      </div>
+      <div className="chat-form-container">
       <form autocomplete = 'off' onSubmit={handleSubmit(onChat)}>
         <input 
             autocomplete = 'off'
@@ -43,6 +44,7 @@ function Chat({userName, roomCode}) {
             />
         <button type="submit">Send</button>
       </form>
+      </div>
       </div>
   )
 }

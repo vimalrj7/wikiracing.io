@@ -1,121 +1,113 @@
-button{
-    width: 175px;
-    color: #4285f4;
-    box-shadow: none;
-    background-color: white;
-    border: 2.5px;
-    border-color: #4285f4;
-    border-radius: 7px;
-    padding: 10px 15px;
-    font-size: 15px;
-    border-style: solid;
-    font-weight: bold;
-    margin: 5px;
-    transition-duration: 0.2s;
-    outline: none;
+body {
+  background-color: #c4f5fc;
 }
 
+.centered {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 95vh;
+}
 
-button:hover {
-    border: 1px;
-    outline: none;
-    background-color: #4285f4;
-    border-color: #4285f4;
-    color: white;
+.form-container {
+  width: 400px;
+  display: block;
+  justify-content: center;
+  margin: 5px;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.title {
+  color: #111;
+  font-family: Hack, monospace;
+  font-size: 80px;
+  font-weight: bold;
+  letter-spacing: -1px;
+  line-height: 1;
+  text-align: center;
+  margin: 20px
+}
+
+.main-button {
+    font-family: Hack, monospace;
+    background: #FF99B3;
+    color: #ffffff;
     cursor: pointer;
+    font-size: 2em;
+    padding: 1.5rem;
+    border: 0;
+    transition: all 0.3s;
+    border-radius: 10px;
+    margin: 15px 10px;
+
 }
 
-input{
-    border-width: 0.75px;
-    border-color: #A6A6A6;
-    border-style: solid;
-    width: 360px;
-    padding: 10px 15px;
-    margin: 5px;
-    box-sizing: border-box;
-    border-radius: 7px;
-    outline: none
+.main-button:hover {
+        background: #FF85A1;
+        transition: all 0.3s;
+        border-radius: 10px;
+        box-shadow: 0px 6px 15px #FFD6E0;
+        padding: 1.5rem 2.5rem 1.5rem 2.5rem;
 }
 
-input:focus{
-    border-width: 2px;
-    border-color: #4285f4;
+.main-input{
+  width: 100%;
+  border-width: 0.75px;
+  border-color: #A6A6A6;
+  border-style: solid;
+  padding: 15px 20px;
+  margin: 5px;
+  border-radius: 7px;
+  outline: none;
+  box-sizing:border-box;
 }
 
-input.error:focus{
-    border-width: 2px;
-    border-color:#f44336;
+.main-input:focus{
+  border-width: 2px;
+  border-color: #201e1f;
 }
 
-input:focus ~ .label{
-    top: -10px;
-    left: 0px;
-    font-size: 10px;
+.form-container p {
+  font-weight: bolder;
+  font-family: monospace;
+  color: #ff4000;
+  margin: 0 10px;
 }
 
-
-button:active {
-    animation: slide 5s linear forwards;
-    visibility: hidden;
+.form-container p::before {
+  display: inline;
+  content: "❌";
+  padding-right: 2px;
 }
 
-h1 {
-    font-size: 50px;
-    color: #424242
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: #B1F1FB;
+  color: white;
+  text-align: center;
 }
 
-.wrapper {
-    text-align: center;
-    font-family: Helvetica, Arial, sans-serif;
-    position: fixed;
-    top: 30%;
-    left: 40%;
+.footer-nav {
+  list-style: none;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-right: 5%;
 }
 
-.fade-appear{
-    opacity: 0;
-}
+.nav-item {
+  font-size: larger;
+  color: black;
+  font-family: Hack, monospace;
+  padding: 0 20px
 
-.fade-appear.fade-appear-active{
-    opacity: 1;
-    transition: opacity 1000 ms linear
-}
-
-@keyframes fadeInUp {
-    from {
-        transform: translate3d(0,40px,0)
-    }
-
-    to {
-        transform: translate3d(0,0,0);
-        opacity: 1
-    }
-}
-
-@-webkit-keyframes fadeInUp {
-    from {
-        transform: translate3d(0,40px,0)
-    }
-
-    to {
-        transform: translate3d(0,0,0);
-        opacity: 1
-    }
-}
-
-.animated {
-    animation-duration: 1s;
-    animation-fill-mode: both;
-    -webkit-animation-duration: 1s;
-    -webkit-animation-fill-mode: both
-}
-
-.animatedFadeInUp {
-    opacity: 0
-}
-
-.fadeInUp {
-    opacity: 0;
-    animation-name: fadeInUp;
-    -webkit-animation-name: fadeInUp;
 }
