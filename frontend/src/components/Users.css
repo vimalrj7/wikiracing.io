@@ -6,6 +6,7 @@
     border-radius: 5px;
     height: 100%;
     background-color: #81C784;
+    height: 100%;
 }
 
 .users-container h2 {
@@ -45,8 +46,8 @@
 }
 
 .player .username {
-    font-size: large;
-    font-weight: bold;
+    font-size: medium;
+    font-weight: 700;
     font-family: 'Roboto Mono', monospace;
     color: #424242;
     margin: 0px 0 2px 10px;
@@ -55,7 +56,7 @@
 .player .wins {
     font-family: 'Roboto Mono', monospace;
     color: #424242;
-    font-weight: medium;
+    font-weight: 500;
     font-size: 15px; 
     margin: 0 0 5px 10px;  
 }

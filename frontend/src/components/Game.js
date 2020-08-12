@@ -54,7 +54,12 @@ function Game({ userName, roomCode }) {
       <div className='game-wrapper'>
 
       <div className='grid-container grid-header'>
-      <h1 className='room-code'>Room #{roomCode}</h1>
+      <div className='heading'>
+      <h1 className='room-code'>ROOM: #{roomCode}</h1>
+      </div>
+      <div className='start-btn-container'>
+      <button className='main-button' onClick={handleStart}>PLAY</button>
+      </div>
       </div>
       <div className='grid-container grid-users'>
       <Users roomData={roomData}/>
@@ -65,9 +70,7 @@ function Game({ userName, roomCode }) {
       <div className='grid-container grid-chat'>
       <Chat userName={userName} roomCode={roomCode}/>
       </div>
-      <div className='grid-container grid-start'>
-      <button className='main-button' onClick={handleStart}>Start Game!</button>
-      </div>
+
       </div>
 
   );

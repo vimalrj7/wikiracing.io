@@ -1,12 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 
+*{
+  font-family: 'Roboto Mono', monospace;
+}
+
 body {
     background-color: #c4f5fc;
   }
 
 .room-code {
   font-size: 50px;
-  font-family: 'Roboto Mono', monospace;
   text-align: center;
   margin: 0px;
 }
@@ -17,22 +20,28 @@ body {
   border: 1px solid black;
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
-  grid-template-rows:  10% 1fr 1fr;
+  grid-template-rows:  1fr 4fr;
   grid-template-areas: "hd hd hd"
-                        "users settings chat"
-                        "stats start-btn none";
+                        "users settings chat";
   gap: 10px;
   padding: 10px;
   box-sizing: border-box;
 }
 
-.grid-container {
-  padding: 10px;
-}
-
 .grid-header{
   grid-area: hd;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  justify-content: space-evenly;
+  place-items: center;
+
+  border: solid #424242;
+  padding: 10px;
+  border-radius: 5px;
+  max-height: 100%;
+  background-color: #9575cd;
 }
+
 
 .grid-users {
   grid-area: users;
@@ -44,10 +53,4 @@ body {
 
 .grid-chat {
   grid-area: chat;
-}
-
-.grid-start {
-  display: grid;
-  place-items: center;
-  grid-area: start-btn;
 }

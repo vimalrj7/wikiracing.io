@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+
 .options-container {
     border: solid #424242;
     padding: 10px;
@@ -7,15 +9,16 @@
 }
 
 .options-container h2 {
+    font-size: 24px;
     letter-spacing: 5px;
     color: #424242;
-    font-family: Hack, monospace;
+    font-family: 'Roboto Mono', monospace;
     text-align: center;
     margin: 10px;
 }
 
 .options-container h2::before {
-    font-size: 18px;
+    font-size: 20px;
     content: "⚙️";
 }
 
@@ -25,8 +28,23 @@
     justify-content: space-evenly;
 }
 
+.title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
 .page-container {
-    border: solid grey;
+    border: solid #424242;
+    padding: 5px;
+    border-radius: 5px;
+    height: 100%;
+    background-color: white;
+}
+
+.image-container {
+    justify-content: center;
+    border: 1px black solid;
 }
 
 .random-btn-container {
@@ -37,5 +55,6 @@
 }
 
 .random-btn {
-    padding: 10px;
+    font-size: 1em;
 }
+

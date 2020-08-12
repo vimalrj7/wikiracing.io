@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import {useForm, appendErrors} from "react-hook-form";
 import {socket} from "./Socket"
 import './Chat.css'
+import ReactHTMLParser from "react-html-parser";
+import Send from '@material-ui/icons/Send';
 
 function Chat({userName, roomCode}) {
 
@@ -23,13 +25,13 @@ function Chat({userName, roomCode}) {
       }
 
       const msgItems = chatMSGS.map((msg) => (
-      <div className='msgContainer'><p key={msg['message']}><b>{msg['username']}:</b> {msg['message']}</p><hr/></div>
+      <div className='message'><p key={msg['message']}><span>{ReactHTMLParser(msg['emoji'])}</span> <b>{msg['username']}:</b> {msg['message']}</p></div>
           ));
 
 
   return(
       <div className='chat-container'>
-      <h2>Chat</h2>
+      <h2>CHAT</h2>
       <div className="messages-container">
           {msgItems}
       </div>
@@ -42,7 +44,7 @@ function Chat({userName, roomCode}) {
             ref={register({
                 required: true})}
             />
-        <button type="submit">Send</button>
+        <button type="submit"><Send style = {{color: '#90CAF9'}}/></button>
       </form>
       </div>
       </div>

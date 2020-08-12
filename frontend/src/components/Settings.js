@@ -17,16 +17,22 @@ function Settings({ roomData }) {
     return (
         <div className="options-container">       
         <h2>OPTIONS</h2>
-        <div className="page-row">
-        <div className="page-container">
-        <h3>Start Page: {startPage}</h3>
+        <div className="title-row">
+        <h3>START</h3>
+        <h3>TARGET</h3>
         </div>
-        <div className="page-container">
-        <h3>Target Page: {targetPage}</h3>
+        <div className="page-row">
+        <div className="page-container start-page">
+        <div className='image-container'></div>
+        <h3>{startPage}</h3>
+        </div>
+        <div className="page-container target-page">
+        <div className='image-container'></div>
+        <h3>{targetPage}</h3>
         </div>
         </div>
         <div className="random-btn-container">
-        <button className="random-btn" onClick={handleRandomize}>Randomize Pages</button>
+        <button className="main-button random-btn" onClick={handleRandomize}>RANDOMIZE</button>
         </div>
         </div>
     )

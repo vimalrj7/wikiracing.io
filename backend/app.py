@@ -128,8 +128,9 @@ def message(data):
     message = data['message']
     user_name = data['userName']
     room_code = data['roomCode']
+    emoji = rooms[room_code].users[request.sid].emoji
 
-    msg_item = {'username': user_name, 'message': message}
+    msg_item = {'username': user_name, 'emoji': emoji, 'message': message}
 
     emit('chatMSG', msg_item, broadcast=True, room=room_code)
 

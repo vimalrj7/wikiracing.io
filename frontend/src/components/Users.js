@@ -1,13 +1,13 @@
 import React from 'react';
 import "./Users.css";
-
+import ReactHTMLParser from "react-html-parser";
 
 function Users({ roomData }) {
     
      const usersHTML = roomData['data'] ? Object.values(roomData['data']['users']).map((user) => {
         return (
         <div className='player'>
-        <div className="emoji"><p>&#129409;</p></div>
+        <div className="emoji"><p>{ReactHTMLParser(user['emoji'])}</p></div>
         <div className="text">
         <p className="username">{user['username']}</p>
         <p className="wins">{user['wins']}<span className="tool-tip">wins</span></p>

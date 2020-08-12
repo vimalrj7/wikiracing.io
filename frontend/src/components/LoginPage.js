@@ -13,12 +13,6 @@ function LoginPage({
   roomCode,
   setRoomCode,
 }) {
-  //animations + route + button change
-  //connect to api to check room+users
-  //validation functions to ensure username is unique
-  //and room is 4 digit + unique
-  //if not valid, stay, otherwise redirect
-  //react-css-transitions
 
   const history = useHistory();
   const { register, handleSubmit, errors, getValues, setValue } = useForm();
@@ -62,10 +56,10 @@ function LoginPage({
           <Route exact path="/">
             <div className="button-container">
               <Link to="/new_game">
-                <button className="main-button">Start Game</button>
+                <button className="main-button">START GAME</button>
               </Link>
               <Link to="/join_game">
-                <button className="main-button">Join Game</button>
+                <button className="main-button">JOIN GAME</button>
               </Link>
             </div>
           </Route>
@@ -95,7 +89,7 @@ function LoginPage({
               </div>
               <div className="button-container">
                 <button className="main-button" type="submit" onClick={generateRoom}>
-                  Start Game
+                  START GAME
                 </button>
               </div>
             </form>
@@ -138,7 +132,7 @@ function LoginPage({
 
               <div className="button-container">
                 <button className="main-button" type="submit">
-                  Join a Game
+                  JOIN GAME
                 </button>
               </div>
             </form>
