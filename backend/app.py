@@ -48,6 +48,10 @@ def on_join(data):
 
         emit('updateRoom', room_data, broadcast=True, room=room_code)
 
+        msg_item = {'username': 'Bot', 'emoji': '&#129302;', 'message': username+' has joined the room.'}
+
+        emit('chatMSG', msg_item, broadcast=True, room=room_code)
+
 
 @socketio.on('disconnect')
 def on_leave():
@@ -64,6 +68,10 @@ def on_leave():
     if room_code in rooms:
         room_data = rooms[room_code].export()
         emit('updateRoom', room_data, broadcast = True, room = room_code)
+
+        msg_item = {'username': 'Bot', 'emoji': '&#129302;', 'message': removed.username+' has left the room.'}
+
+        emit('chatMSG', msg_item, broadcast=True, room=room_code)
 
 
 

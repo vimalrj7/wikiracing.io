@@ -4,7 +4,6 @@
     border: solid #424242;
     padding: 5px;
     border-radius: 5px;
-    height: 100%;
     background-color: #81C784;
     height: 100%;
 }
@@ -83,9 +82,11 @@
   
     /* Position the tooltip */
     position: absolute;
+    width: 40px;
     z-index: 1;
-    top: -5px;
-    left: 120%;
+    top: 100%;
+    left: 50%;
+    margin-left: -20px;
   }
 
 .wins:hover .tool-tip {

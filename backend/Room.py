@@ -69,4 +69,5 @@ class Room:
         return {'start_page': self.start_page,
                 'target_page': self.target_page,
                 'room_code': self.room_code,
+                'rounds': self.rounds,
                 'users': {sid: user.export() for sid, user in self.users.items()}}

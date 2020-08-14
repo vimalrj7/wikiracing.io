@@ -36,7 +36,7 @@ body {
 
 .title {
   color: #424242;
-  font-size: 4em;
+  font-size: 7vw;
   font-weight: bold;
   letter-spacing: -1px;
   line-height: 1;
@@ -65,6 +65,10 @@ body {
     box-shadow: 0px 6px 15px #FFD6E0;
 }
 
+.main-button:active {
+  outline: none;
+}
+
 .main-input{
   width: 100%;
   border-width: 1px;
@@ -83,6 +87,7 @@ body {
 }
 
 .form-container p {
+  font-size: smaller;
   font-weight: bolder;
   color: #ff4000;
   margin: 0 10px;
@@ -91,7 +96,7 @@ body {
 .form-container p::before {
   display: inline;
   content: "❌";
-  padding-right: 2px;
+  padding-right: 4px;
 }
 
 .footer {

@@ -44,7 +44,7 @@ function Chat({userName, roomCode}) {
             ref={register({
                 required: true})}
             />
-        <button type="submit"><Send style = {{color: '#90CAF9'}}/></button>
+        <button type="submit"><Send/></button>
       </form>
       </div>
       </div>
