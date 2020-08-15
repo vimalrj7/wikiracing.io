@@ -30,20 +30,22 @@
 
 .messages-container {
     height: 300px;
-    width: fixed;
-    overflow-x: hidden;
     overflow-y: scroll;
+    overscroll-behavior-y: contain;
+    scroll-snap-type: y proximity;
     text-align: left;
     padding: 3px;
-    overflow-wrap: break-word;
+}
+
+.messages-container > div:last-child {
+    scroll-snap-align: end;
 }
 
 .message {
     font-size: smaller;
     padding: 0 5px;
-    overflow-wrap: break-word;
+    word-break: break-all;
 }
-
 
 .message span {
     font-size: larger;

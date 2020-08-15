@@ -118,16 +118,20 @@ def get_wikipage(data):
     page_name = data['wikiPage']
     room = rooms[room_code]
 
-    page = Page(page_name).export()
-
+    page = Page(page_name, rooms[room_code].target_page).export()
     emit('updatePage', page)
-
     room.update_game(request.sid, page_name)
 
     if room.round_end:
         print('ENDING GAME') 
         emit('endRound', broadcast=True, room=room_code)
 
+@socketio.on('updateTime')
+def update_time(data):
+    print('UPDATING TIME')
+    time = data['time']
+    room_code = data['roomCode']
+    rooms[room_code].users[request.sid].time = time
 
 
 @socketio.on('chatMSG')

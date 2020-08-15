@@ -1,20 +1,24 @@
 import random
 from User import User
+import time
 
 
 class Room:
 
     def __init__(self, room_code):
-        with open('pages.txt', 'r') as pages:
+        """ with open('pages.txt', 'r') as pages:
             self.starts = pages.readline().split()
-            self.targets = pages.readline().split()
+            self.targets = pages.readline().split() """
 
+        self.starts = ['Tinder']
+        self.targets = ['Cotton']
         self.start_page = random.choice(self.starts)
         self.target_page = random.choice(self.targets)
         self.users = {}
         self.room_code = room_code
         self.rounds = 1
         self.round_end = False
+        self.winner = None
     
     #USER METHODS
     def get_user(self, sid):
@@ -43,12 +47,12 @@ class Room:
         self.round_end = False
         for user in self.users.values():
             user.clicks = -1
-            user.current_page = None
+            user.current_page = self.start_page
 
     def update_game(self, sid, page):
         user = self.get_user(sid)
         user.current_page = page
-        print('Updating Game Internally, pa')
+        print('Updating Game Internally')
         print(user.username, '+' ,user.current_page)
 
         user.clicks += 1
@@ -62,6 +66,7 @@ class Room:
         winner = self.get_user(sid)
         winner.wins += 1
         self.rounds += 1
+        self.winner = sid
 
         self.randomize_pages()
 
