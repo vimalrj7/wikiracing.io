@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { socket } from "./Socket";
 import { useParams, Redirect, Link, useHistory } from "react-router-dom";
 import ReactHTMLParser, { convertNodeToElement } from "react-html-parser";
+import Watch from './Watch'
 import './wiki-resources/common.css'
 import './wiki-resources/vector.css'
 
@@ -9,11 +10,11 @@ function WikiPage({ roomCode }) {
 
 
   const [pageData, setPageData] = useState({});
+  const [time, setTime] = useState(0);
   let { wikiPage } = useParams();
   const history = useHistory()
 
   useEffect(() => {
-    console.log("Parameter: ", wikiPage);
     socket.emit("updatePage", { roomCode, wikiPage });
 
     socket.on("updatePage", (pageData) => {
@@ -23,14 +24,15 @@ function WikiPage({ roomCode }) {
     });
 
     socket.on("endRound", () => {
-      console.log('Receving endRound call')
-      setTimeout(() => {history.push(`/game/${roomCode}`)}, 2000)
+      console.log('Receving endRound call, emitting time')
+      socket.emit('updateTime', { roomCode, time })
+      setTimeout(() => {history.push(`/game/${roomCode}`)}, 1000)
       
     })
 
-    window.addEventListener("popstate", () => {
+    /* window.addEventListener("popstate", () => {
       history.go(1);
-    });
+    }); */
 
   }, [wikiPage]);
 
@@ -43,7 +45,10 @@ function WikiPage({ roomCode }) {
   return roomCode === "" ? (
     <Redirect to="/" />
   ) : (
+    
     <div className='wiki-container'>
+      <Watch time={time} setTime={setTime} />
+      <div className='target-container'>Target: {pageData['target']}</div>
       <div className="mediawiki ltr sitedir-ltr mw-hide-empty-elt ns-0 ns-subject mw-editables skin-vector action-view skin-vector-legacy minerva--history-page-action-enabled">
       <div id="content" className="mw-body-content" role="main">
         <div id="content" className="mw-body" role="main">

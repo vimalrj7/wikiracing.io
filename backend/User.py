@@ -12,6 +12,7 @@ class User:
         self.current_page = None
         self.clicks = -1
         self.wins = 0
+        self.time = 0
         self.emoji = random.choice(avatars).replace('\n','')
 
     def export(self):
@@ -21,5 +22,6 @@ class User:
                 'current_page': self.current_page,
                 'clicks': self.clicks,
                 'wins': self.wins,
+                'time': self.time,
                 'emoji': self.emoji}
         

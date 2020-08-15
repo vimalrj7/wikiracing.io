@@ -43,14 +43,6 @@ function Game({ userName, roomCode }) {
     <Redirect to="/" />
   ) : (
 
-      /*<div>
-      <h1 className="room-code">Room #{roomCode}</h1>
-      <Users roomData={roomData}/>
-      <Chat userName={userName} roomCode={roomCode}/>
-      <Settings roomData={roomData}/>
-      <button onClick={handleStart}>Start Game!</button>
-      </div>*/
-
       <div className='game-wrapper'>
 
       <div className='grid-container grid-header'>
@@ -69,6 +61,8 @@ function Game({ userName, roomCode }) {
       </div>
       <div className='grid-container grid-chat'>
       <Chat userName={userName} roomCode={roomCode}/>
+      </div>
+      <div className="winner-modal">
       </div>
 
       </div>
