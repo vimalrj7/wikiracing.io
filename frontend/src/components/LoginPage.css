@@ -70,6 +70,7 @@ body {
 }
 
 .main-input{
+  font-size: 17px;
   width: 100%;
   border-width: 1px;
   border-color: #A6A6A6;
