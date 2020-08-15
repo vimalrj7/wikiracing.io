@@ -7,8 +7,8 @@ class Room:
 
     def __init__(self, room_code):
         """ with open('pages.txt', 'r') as pages:
-            self.starts = pages.readline().split()
-            self.targets = pages.readline().split() """
+            self.starts = pages.readline().split('\t')
+            self.targets = pages.readline().split('\t') """
 
         self.starts = ['Tinder']
         self.targets = ['Cotton']
@@ -17,8 +17,8 @@ class Room:
         self.users = {}
         self.room_code = room_code
         self.rounds = 1
-        self.round_end = False
-        self.winner = None
+        #self.round_end = False
+        #self.winner = None
     
     #USER METHODS
     def get_user(self, sid):
@@ -58,17 +58,20 @@ class Room:
         user.clicks += 1
 
         if user.current_page.lower() == self.target_page.lower():
-            self.end_game(sid)
+            return self.end_game(sid)
 
     def end_game(self, sid):
         print('Ending game internally, flag changed')
-        self.round_end = True
+        #self.round_end = True
         winner = self.get_user(sid)
         winner.wins += 1
         self.rounds += 1
-        self.winner = sid
+        #self.winner = sid
 
         self.randomize_pages()
+        print(winner)
+
+        return winner
 
     def export(self):
         return {'start_page': self.start_page,

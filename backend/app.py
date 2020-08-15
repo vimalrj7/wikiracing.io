@@ -120,11 +120,12 @@ def get_wikipage(data):
 
     page = Page(page_name, rooms[room_code].target_page).export()
     emit('updatePage', page)
-    room.update_game(request.sid, page_name)
+    winner = room.update_game(request.sid, page_name)
+    print('FLAG:', winner)
 
-    if room.round_end:
+    if winner:
         print('ENDING GAME') 
-        emit('endRound', broadcast=True, room=room_code)
+        emit('endRound', winner.export(), broadcast=True, room=room_code)
 
 @socketio.on('updateTime')
 def update_time(data):

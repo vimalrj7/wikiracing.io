@@ -7,7 +7,6 @@ import { socket } from "./Socket";
 import "./LoginPage.css";
 
 function LoginPage({
-  routeFlag,
   userName,
   setUserName,
   roomCode,

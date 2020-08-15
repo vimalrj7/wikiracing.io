@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import './Watch.css'
 
-function Watch( { time, setTime } ) {
+function Watch( { time, setTime, gameOver } ) {
   
     function updateTime() {
         setTime((time) => time + 1);
@@ -20,12 +19,14 @@ function Watch( { time, setTime } ) {
     }
 
   useEffect(() => {
-    console.log('time:', time)
     let interval = null;
+    if (!gameOver){
     interval = setInterval(() => {
         updateTime();
     }, 1000);
-
+    } else if (gameOver && time !== 0){
+      clearInterval(interval)
+    }
     return () => {
         clearInterval(interval)
     };
