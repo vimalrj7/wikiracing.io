@@ -1,0 +1,84 @@
+.timer-container, .target-container {
+    position: absolute;
+    z-index: 1;
+    top: 5px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 4px 6px;
+    border-radius: 6px;
+    opacity: 35%;
+    margin: 5px; 
+}
+
+.timer-container {
+    right: 5px;
+}
+
+.target-container {
+    right: 75px;
+}
+
+.timer-container:hover, .target-container:hover {
+    opacity: 75%;
+}
+
+.winner-overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.75);
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    animation: fadein 1s ease;
+}
+
+@keyframes fadein {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+.winner-overlay h1 {
+    color: #424242;
+    font-weight: bold;
+    font-size: 5em;
+    border-bottom: none;
+    margin-bottom: 5px;
+}
+
+.winner-time {
+    font-size: x-large;
+    text-align: right;
+}
+
+.winner-clicks {
+    font-size: x-large;
+    text-align: right;
+    
+}
+
+.winner-overlay b {
+    margin-right: 10px;
+}
+
+ .winner-overlay h1 {
+    animation: bop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards infinite
+      alternate;   
+}
+
+@keyframes bop {
+  0% {
+    transform: scale(0.9);
+  }
+  50%,
+  100% {
+    transform: scale(1);
+  }
+}
