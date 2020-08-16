@@ -69,8 +69,8 @@ function WikiPage({ roomCode }) {
       {gameOver ? (
         <div className="winner-overlay">
           <h1 className="winner-name">&#127942;{winner["username"]} won!</h1>
-          <p className="winner-time"><b>&#128336;Time</b>	{formatTime(time)}</p>
-          <p className="winner-clicks"><b>&#128433;Clicks</b> {winner["clicks"]}</p>
+          <p className="winner-time"><b>&#128336; Time</b>	{formatTime(time)}</p>
+          <p className="winner-clicks"><b>&#128433;&#65039; Clicks</b> {winner["clicks"]}</p>
         </div>
       ) : null}
 
