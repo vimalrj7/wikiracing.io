@@ -46,11 +46,14 @@ function Game({ userName, roomCode }) {
       <div className='game-wrapper'>
 
       <div className='grid-container grid-header'>
+      <div className='logo'>
+        <h1>WIKIRACING</h1>
+      </div>
       <div className='heading'>
       <h1 className='room-code'>ROOM #{roomCode}</h1>
       </div>
       <div className='start-btn-container'>
-      <button className='main-button' onClick={handleStart}>PLAY</button>
+      <button className='play-btn main-button' onClick={handleStart}>PLAY</button>
       </div>
       </div>
       <div className='grid-container grid-users'>

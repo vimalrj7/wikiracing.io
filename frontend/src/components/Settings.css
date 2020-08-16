@@ -1,70 +1,60 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
-
 .options-container {
-    border: solid #424242;
-    padding: 5px;
-    border-radius: 5px;
-    background-color: #E57373;
+  border: solid #424242;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: #e57373;
 }
 
 .options-container h2 {
-    font-size: 24px;
-    letter-spacing: 5px;
-    color: #424242;
-    font-family: 'Roboto Mono', monospace;
-    text-align: center;
-    margin: 10px;
+  font-size: 24px;
+  letter-spacing: 5px;
+  color: #424242;
+  font-family: "Roboto Mono", monospace;
+  text-align: center;
+  margin: 10px;
 }
 
 .options-container h2::before {
-    font-size: 20px;
-    content: "⚙️";
+  font-size: 20px;
+  content: "⚙️";
 }
 
 .page-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
 }
 
 .title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
 }
 
 .page-container {
-    border: solid #424242;
-    padding: 5px;
-    border-radius: 5px;
-    height: 100%;
-    background-color: white;
+  border: solid #424242;
+  margin-top: 0;
+  padding: 0 15px;
+  border-radius: 5px;
+  height: 100%;
+  background-color: white;
+}
+
+.page-container h3 {
 }
 
 .image-container {
-    justify-content: center;
-    border: 1px #424242 solid;
+  justify-content: center;
+  border: 1px #424242 solid;
 }
 
 .random-btn-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px;
 }
 
 .random-btn {
-    font-size: 1em;
+  font-size: 1em;
 }
-
-.random-btn:hover {
-    background: #FF85A1;
-    transition: all 0.3s;
-    border-radius: 10px;
-    box-shadow: 0px 6px 15px #FFD6E0;
-}
-
-.random-btn:active {
-  outline: none;
-}
-

@@ -49,7 +49,7 @@ def on_join(data):
 
         emit('updateRoom', room_data, broadcast=True, room=room_code)
 
-        msg_item = {'username': 'Bot', 'emoji': '&#129302;', 'message': username+' has joined the room.'}
+        msg_item = {'username': 'Bot', 'emoji': '&#129302;', 'message': username+' joined the room.'}
 
         emit('chatMSG', msg_item, broadcast=True, room=room_code)
 
@@ -70,7 +70,7 @@ def on_leave():
         room_data = rooms[room_code].export()
         emit('updateRoom', room_data, broadcast = True, room = room_code)
 
-        msg_item = {'username': 'Bot', 'emoji': '&#129302;', 'message': removed.username+' has left the room.'}
+        msg_item = {'username': 'Bot', 'emoji': '&#129302;', 'message': removed.username+' left the room.'}
 
         emit('chatMSG', msg_item, broadcast=True, room=room_code)
 

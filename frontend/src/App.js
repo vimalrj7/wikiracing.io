@@ -3,6 +3,7 @@ import LoginPage from "./components/LoginPage";
 import Game from "./components/Game";
 import WikiPage from "./components/WikiPage";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import "./Main.css"
 
 function App() {
     const [userName, setUserName] = useState("");

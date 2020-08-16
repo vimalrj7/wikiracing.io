@@ -23,16 +23,14 @@ function Settings({ roomData }) {
         </div>
         <div className="page-row">
         <div className="page-container start-page">
-        <div className='image-container'></div>
         <h3>{startPage}</h3>
         </div>
         <div className="page-container target-page">
-        <div className='image-container'></div>
         <h3>{targetPage}</h3>
         </div>
         </div>
         <div className="random-btn-container">
-        <button className="main-button random-btn" onClick={handleRandomize}>RANDOMIZE</button>
+        <button className="random-btn main-button" onClick={handleRandomize}>RANDOMIZE</button>
         </div>
         </div>
     )

@@ -12,6 +12,7 @@ class Room:
 
         self.starts = ['Tinder']
         self.targets = ['Cotton']
+        self.lowest_position = 0
         self.start_page = random.choice(self.starts)
         self.target_page = random.choice(self.targets)
         self.users = {}
@@ -63,15 +64,21 @@ class Room:
     def end_game(self, sid):
         print('Ending game internally, flag changed')
         #self.round_end = True
-        winner = self.get_user(sid)
-        winner.wins += 1
-        self.rounds += 1
-        #self.winner = sid
+        completer = self.get_user(sid)
+        
+        ###
+        completer.position = self.lowest_position + 1
+        self.lowest_position = completer.position
+        completer.score = (4 - completer.position) * 10
+        
+        if completer.position == 3 or completer.position == len(self.users):
+            self.rounds += 1
+            self.randomize_pages()
+        ###
+        
+        print(completer)
 
-        self.randomize_pages()
-        print(winner)
-
-        return winner
+        return completer
 
     def export(self):
         return {'start_page': self.start_page,
@@ -79,3 +86,7 @@ class Room:
                 'room_code': self.room_code,
                 'rounds': self.rounds,
                 'users': {sid: user.export() for sid, user in self.users.items()}}
+
+
+
+#

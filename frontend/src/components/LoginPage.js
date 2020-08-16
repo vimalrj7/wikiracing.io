@@ -55,10 +55,10 @@ function LoginPage({
           <Route exact path="/">
             <div className="button-container">
               <Link to="/new_game">
-                <button className="main-button">START GAME</button>
+                <button className="home-btn main-button">START GAME</button>
               </Link>
               <Link to="/join_game">
-                <button className="main-button">JOIN GAME</button>
+                <button className="home-btn main-button">JOIN GAME</button>
               </Link>
             </div>
           </Route>
@@ -87,7 +87,7 @@ function LoginPage({
                 <ErrorMessage errors={errors} name="userName" as="p" />
               </div>
               <div className="button-container">
-                <button className="main-button" type="submit" onClick={generateRoom}>
+                <button className="home-btn main-button" type="submit" onClick={generateRoom}>
                   START GAME
                 </button>
               </div>
@@ -130,7 +130,7 @@ function LoginPage({
               </div>
 
               <div className="button-container">
-                <button className="main-button" type="submit">
+                <button className="home-btn main-button" type="submit">
                   JOIN GAME
                 </button>
               </div>
