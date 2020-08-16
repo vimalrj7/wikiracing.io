@@ -4,6 +4,7 @@ from User import User
 from Room import Room
 from Page import Page
 from flask_cors import CORS, cross_origin
+from better_profanity import profanity
 import requests
 import requests_cache
 
@@ -138,7 +139,7 @@ def update_time(data):
 @socketio.on('chatMSG')
 def message(data):
     print('SENDING MESG')
-    message = data['message']
+    message = profanity.censor(data['message'])
     user_name = data['userName']
     room_code = data['roomCode']
     emoji = rooms[room_code].users[request.sid].emoji
