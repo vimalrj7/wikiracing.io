@@ -135,11 +135,10 @@ def update_time(data):
     room_code = data['roomCode']
     rooms[room_code].users[request.sid].time = time
 
-
 @socketio.on('chatMSG')
 def message(data):
     print('SENDING MESG')
-    message = profanity.censor(data['message'])
+    message = profanity.censor(data['message'], '&#129324')
     user_name = data['userName']
     room_code = data['roomCode']
     emoji = rooms[room_code].users[request.sid].emoji
