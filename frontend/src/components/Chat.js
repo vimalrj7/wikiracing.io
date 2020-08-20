@@ -25,7 +25,7 @@ function Chat({userName, roomCode}) {
       }
 
       const msgItems = chatMSGS.map((msg) => (
-      <div className='message'><p key={msg['message']}><span>{ReactHTMLParser(msg['emoji'])}</span> <b>{msg['username']}:</b> {msg['message']}</p></div>
+      <div className='message'><p key={msg['message']}><span>{ReactHTMLParser(msg['emoji'])}</span> <b>{msg['username']}:</b> {ReactHTMLParser(msg['message'])}</p></div>
           ));
 
 
