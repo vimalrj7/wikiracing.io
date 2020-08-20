@@ -28,6 +28,11 @@ body {
   /* box-shadow: 0px 6px 15px #ffd6e0; */
 }
 
+.main-button:disabled {
+  background-color: grey;
+  color: #424242
+}
+
 .main-button:active {
   outline: none;
 }
