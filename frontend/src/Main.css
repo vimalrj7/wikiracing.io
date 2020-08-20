@@ -29,8 +29,10 @@ body {
 }
 
 .main-button:disabled {
-  background-color: grey;
-  color: #424242
+  border-color: #BDBDBD;
+  background-color: #E0E0E0;
+  color: #BDBDBD;
+  cursor: not-allowed;
 }
 
 .main-button:active {
