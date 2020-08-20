@@ -9,10 +9,10 @@ class Room:
         """ with open('pages.txt', 'r') as pages:
             self.starts = pages.readline().split('\t')
             self.targets = pages.readline().split('\t') """
-
         self.starts = ['Tinder']
         self.targets = ['Cotton']
-        self.lowest_position = 0
+        
+        self.emojis = []
         self.start_page = random.choice(self.starts)
         self.target_page = random.choice(self.targets)
         self.users = {}
@@ -20,6 +20,7 @@ class Room:
         self.rounds = 1
         #self.round_end = False
         #self.winner = None
+        #self.lowest_position = 0
     
     #USER METHODS
     def get_user(self, sid):
@@ -28,6 +29,7 @@ class Room:
     def add_user(self, username, sid):
         if sid not in self.users:
             self.users[sid] = User(username, sid)
+            self.emojis.append(self.users[sid].set_emoji(self.emojis))
             if len(self.users) == 1: self.users[sid].admin = True
 
     def delete_user(self, sid):

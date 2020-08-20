@@ -3,9 +3,6 @@ import random
 class User:
 
     def __init__(self, username, sid):
-        with open('emojis.txt', 'r') as avatars:
-            avatars = avatars.readlines()
-
         self.username = username
         self.sid = sid
         self.admin = False
@@ -17,7 +14,14 @@ class User:
         self.position = 0
         self.score = 0
         ###
-        self.emoji = random.choice(avatars).replace('\n','')
+        self.emoji = None
+
+    def set_emoji(self, pool):
+        emojis = open('emojis.txt', 'r')
+        options = [emoji.replace('\n','') for emoji in emojis]
+        self.emoji = random.choice(list(set(options)^set(pool))).replace('\n','')
+        emojis.close()
+        return self.emoji
 
     def export(self):
         return {'username': self.username,
