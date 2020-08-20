@@ -1,0 +1,33 @@
+fixes:
+- fix router not showing anything
+- clean up css (change colors?)
+
+features:
+- reverse timer, put time limit (how much? customizatable?)
+- add first, second, third places
+- add more player stats
+- clicks mode
+- different difficulties
+- last round winner
+
+to-do before production:
+- add more pages, store pages in db
+- store emojis in db?
+- configure secret keys, store in env
+- configure socket.io keys
+
+production:
+- deploy flask to heroku first, figure out gnunicorn 
+- test local react with production flask api
+- deploy react to netlify? heroku?
+
+-------------------------------------------------------------------------
+
+DONE:
+- profanity emoji
+- add round number to options
+- fix game page button css
+- fix start page target page alignment
+- sort leaderboard
+- call data validation inside react-hook-form
+- fix heading size

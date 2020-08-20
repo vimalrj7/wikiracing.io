@@ -65,15 +65,24 @@ class Room:
         print('Ending game internally, flag changed')
         #self.round_end = True
         completer = self.get_user(sid)
-        
+        completer.wins += 1
+        self.rounds += 1
+        self.randomize_pages()
+
         ###
+        '''
         completer.position = self.lowest_position + 1
         self.lowest_position = completer.position
         completer.score = (4 - completer.position) * 10
         
+        if completer.position == 1:
+            completer.wins += 1
+        
         if completer.position == 3 or completer.position == len(self.users):
             self.rounds += 1
+            self.lowest_position = 0
             self.randomize_pages()
+        '''
         ###
         
         print(completer)

@@ -4,13 +4,16 @@ import ReactHTMLParser from "react-html-parser";
 
 function Users({ roomData }) {
     
-     const usersHTML = roomData['data'] ? Object.values(roomData['data']['users']).map((user) => {
+     const usersHTML = roomData['data'] ? Object.values(roomData['data']['users']).sort((a, b) => b['wins']-a['wins']).map((user) => {
         return (
         <div className='player'>
         <div className="emoji"><p>{ReactHTMLParser(user['emoji'])}</p></div>
         <div className="text">
         <p className="username">{user['username']}</p>
         <p className="wins">{user['wins']}<span className="tool-tip">wins</span></p>
+        </div>
+        <div className='info-container'>
+        <p className="admin">{user['admin'] ? 'Admin' : null }</p>
         </div>
         </div>
         )

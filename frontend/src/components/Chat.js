@@ -36,9 +36,9 @@ function Chat({userName, roomCode}) {
           {msgItems}
       </div>
       <div className="chat-form-container">
-      <form autocomplete = 'off' onSubmit={handleSubmit(onChat)}>
+      <form onSubmit={handleSubmit(onChat)}>
         <input 
-            autocomplete = 'off'
+            autoComplete='off'
             name="chatMSG"
             placeholder="Send message"
             ref={register({

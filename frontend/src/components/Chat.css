@@ -19,11 +19,12 @@
     border-radius: 5px;
     height: 100%;
     background-color: #E7E6E6;
+    box-sizing: border-box;
 }
 
 
 .messages-container {
-    height: 300px;
+    height: 60vh;
     overflow-y: scroll;
     overscroll-behavior-y: contain;
     scroll-snap-type: y proximity;
@@ -46,7 +47,7 @@
 }
 
 .chat-form-container {
-    width: 95%;
+    width: 96%;
     margin: 10px 5px;
     background-color: white;
     border: 1px solid black;
@@ -60,7 +61,7 @@
     font-size: x-large;
     background-color: white;
     float: right;
-    margin-top: 5px;
+    margin: 5px 2px 0 0;
 }
 
 .chat-form-container button:active, .chat-form-container button:focus {
@@ -76,6 +77,6 @@
     line-height: normal;
     margin: 5px;
     padding: 5px;
-    width: 80%;
+    width: 75%;
     box-sizing: border-box;
 }

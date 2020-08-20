@@ -29,9 +29,9 @@ function WikiPage({ roomCode }) {
       setGameOver(true);
       setWinner(winnerData);
       socket.emit("updateTime", { roomCode, time: time + 1 });
-      /* let navigateHome = setTimeout(() => {
+       let navigateHome = setTimeout(() => {
         history.push(`/game/${roomCode}`);
-      }, 5000); */
+      }, 5000); 
     });
 
     window.addEventListener("popstate", () => {

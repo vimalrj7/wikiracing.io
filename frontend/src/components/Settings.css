@@ -19,16 +19,30 @@
   content: "⚙️";
 }
 
+.options-container .round-heading {
+  color: #424242;
+  text-align: center;
+  letter-spacing: 3px;
+  font-size: -large;
+  margin-bottom: 5px;
+  padding: 5px;
+}
+
 .page-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
 }
 
 .title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
+}
+
+.title-row h3 {
+  margin: 10px 0 0 0;
+  color: #424242;
 }
 
 .page-container {
@@ -41,11 +55,8 @@
 }
 
 .page-container h3 {
-}
-
-.image-container {
-  justify-content: center;
-  border: 1px #424242 solid;
+  color: #424242;
+  letter-spacing: 1px;
 }
 
 .random-btn-container {

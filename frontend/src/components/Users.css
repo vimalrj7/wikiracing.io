@@ -61,6 +61,16 @@
     margin: 0 0 5px 10px;  
 }
 
+.info-container{
+    margin-left: auto;
+    margin-bottom: auto;
+    padding: 2px;
+}
+.player .admin {
+    margin: 5px;
+    font-weight: bold;
+}
+
 .wins::before {
     display: inline-block;
     content: "🏆";

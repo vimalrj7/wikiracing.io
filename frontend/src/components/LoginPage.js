@@ -18,10 +18,8 @@ function LoginPage({
   const [data, setData] = useState({});
 
   useEffect(() => {
-    socket.emit("validateData");
-
     socket.on("validateData", (validateData) => {
-      console.log(validateData);
+      console.log('Validating', validateData);
       setData(validateData);
     });
   }, []);
@@ -123,7 +121,8 @@ function LoginPage({
                   ref={register({
                     required: "Room Code is required.",
                     pattern: {value: /^\d{4}$/, message: 'Room Code must be a 4 digit number.'},
-                    validate: (roomCode) => (Object.keys(data).includes(roomCode)) ? true : 'This room does not exist.'
+                    validate: async (roomCode) => {socket.emit("validateData")
+                      return (Object.keys(data).includes(roomCode)) ? true : 'This room does not exist.'}
                   })}
                 />
                 <ErrorMessage errors={errors} name="roomCode" as="p" />

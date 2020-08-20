@@ -22,7 +22,7 @@ body {
 }
 
 .form-container {
-  width: 400px;
+  width: 350px;
   display: block;
   justify-content: center;
   margin: 5px;
@@ -41,8 +41,9 @@ body {
   letter-spacing: -1px;
   line-height: 1;
   text-align: center;
-  margin: 40px
+  margin: 30px;
 }
+
 
 
 .home-btn {
@@ -102,4 +103,12 @@ body {
   font-size: larger;
   color: black;
   padding: 0 20px
+}
+
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 11vw;
+  }
+
 }
