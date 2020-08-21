@@ -6,8 +6,7 @@ requests_cache.install_cache()
     
 class Page:
 
-    def __init__(self, wikipage, target=None):
-        wikipage = wikipage.replace(' ', '_')
+    def __init__(self, wikipage, target = None):
         url = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&page='+wikipage+'&redirects=1&prop=text&disableeditsection=1&formatversion=2'
         r = requests.get(url)
         print('From Cache: ', r.from_cache)

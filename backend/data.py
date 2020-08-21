@@ -34,6 +34,4 @@ emojis = {
     '&#129416;',    #Shark
 }
 
-pages = {
-
-}
+pages = [('Pilot_error', 'Tinder'), ('Ohio_State_Route_38', 'Communism'), ('Mucilaginibacter_litoreus', 'Dab_(dance)'), ('Bulford', 'Fu_Manchu'), ('World_Bicycle_Day', 'Kazimierz_Wyka'), ('Roberto_Simanowski', 'Robert_P._Bush')]

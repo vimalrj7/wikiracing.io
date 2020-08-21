@@ -3,8 +3,8 @@ import { socket } from "./Socket";
 import "./Settings.css";
 
 function Settings({ roomData }) {
-  const startPage = roomData["data"] ? roomData["data"]["start_page"] : null;
-  const targetPage = roomData["data"] ? roomData["data"]["target_page"] : null;
+  const startPage = roomData["data"] ? roomData["data"]["start_page"].replace('_', ' ') : null;
+  const targetPage = roomData["data"] ? roomData["data"]["target_page"].replace('_', ' ') : null;
   const roomCode = roomData["data"] ? roomData["data"]["room_code"] : null;
   const roundNum = roomData["data"] ? roomData["data"]["rounds"] : null;
   const admin = roomData["data"] ? roomData["data"]["users"][socket.id]['admin'] : null;

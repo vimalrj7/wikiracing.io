@@ -1,6 +1,12 @@
 fixes:
 - fix router not showing anything
 - clean up css (change colors?)
+- add more pages
+- make aysnc call 
+- fix settings box, add difficulty?
+- tool-tip for admin + buttons
+- make logo
+- make game end
 
 features:
 - reverse timer, put time limit (how much? customizatable?)
@@ -9,6 +15,7 @@ features:
 - clicks mode
 - different difficulties
 - last round winner
+- summary 
 
 to-do before production:
 - add more pages, store pages in db

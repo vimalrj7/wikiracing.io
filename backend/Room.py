@@ -1,20 +1,14 @@
-import random
+from random import choice
 from User import User
+from data import pages
 import time
 
 
 class Room:
 
     def __init__(self, room_code):
-        """ with open('pages.txt', 'r') as pages:
-            self.starts = pages.readline().split('\t')
-            self.targets = pages.readline().split('\t') """
-        self.starts = ['Tinder']
-        self.targets = ['Cotton']
-        
         self.emojis = set()
-        self.start_page = random.choice(self.starts)
-        self.target_page = random.choice(self.targets)
+        self.start_page, self.target_page = choice(pages)
         self.users = {}
         self.room_code = room_code
         self.rounds = 1
@@ -40,9 +34,7 @@ class Room:
 
     #ROOM METHODS
     def randomize_pages(self):
-        self.start_page = random.choice(self.starts)
-        self.target_page = random.choice(self.targets)
-        print(self.export())
+        self.start_page, self.target_page = choice(pages)
 
     def start_game(self):
         print('Starting game internally!')
