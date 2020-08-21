@@ -12,7 +12,7 @@ class Room:
         self.starts = ['Tinder']
         self.targets = ['Cotton']
         
-        self.emojis = []
+        self.emojis = set()
         self.start_page = random.choice(self.starts)
         self.target_page = random.choice(self.targets)
         self.users = {}
@@ -29,7 +29,7 @@ class Room:
     def add_user(self, username, sid):
         if sid not in self.users:
             self.users[sid] = User(username, sid)
-            self.emojis.append(self.users[sid].set_emoji(self.emojis))
+            self.emojis.add(self.users[sid].set_emoji(self.emojis))
             if len(self.users) == 1: self.users[sid].admin = True
 
     def delete_user(self, sid):

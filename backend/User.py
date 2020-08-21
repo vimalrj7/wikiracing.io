@@ -1,4 +1,5 @@
-import random
+from random import choice
+from data import emojis
 
 class User:
 
@@ -17,9 +18,7 @@ class User:
         self.emoji = None
 
     def set_emoji(self, pool):
-        emojis = open('emojis.txt', 'r')
-        options = [emoji.replace('\n','')[emoji.find('\t') + 1:] for emoji in emojis]
-        self.emoji = random.choice(list(set(options)^set(pool))).replace('\n','')
+        self.emoji = choice(list(emojis^pool))
         emojis.close()
         return self.emoji
 
