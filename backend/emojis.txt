@@ -25,3 +25,8 @@ Octupus &#128025;
 Butterfly   &#129419;
 Snail   &#128012;
 Ant &#128028;
+Beetle  &#128030;
+Dragon  &#128050;
+Penguin &#128039;
+Eagle   &#129413;
+Duck    &#129414;
