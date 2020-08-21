@@ -1,4 +1,4 @@
-from random import choice
+from random import sample
 from data import emojis
 
 class User:
@@ -11,15 +11,12 @@ class User:
         self.clicks = -1
         self.wins = 0
         self.time = 0
-        ###
-        self.position = 0
-        self.score = 0
-        ###
+        #self.position = 0
+        #self.score = 0
         self.emoji = None
 
-    def set_emoji(self, pool):
-        self.emoji = choice(list(emojis^pool))
-        emojis.close()
+    def set_emoji(self, used):
+        self.emoji = sample(emojis^used, 1)[0]
         return self.emoji
 
     def export(self):
