@@ -13,7 +13,6 @@ class Page:
         json_data = r.json()
         self.title = json_data['parse']['title']
         self.target = target
-        #self.html = top+self.title+middle+json_data['parse']['text']+bottom
         self.html = json_data['parse']['text']
         
     def export(self):
