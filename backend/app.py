@@ -20,6 +20,7 @@ rooms = {}
 
 requests_cache.install_cache()
 
+#DO WE STILL NEED THIS COMMENTED CODE?
 """ 
 @app.route('/')
 def index():
@@ -36,6 +37,7 @@ def on_join(data):
     username = data['userName']
     room_code = data['roomCode']
     
+    #do we need this check?
     if username != '':
 
         if room_code not in rooms:
@@ -62,7 +64,7 @@ def on_leave():
         if removed := room.delete_user(request.sid):
             room_code = code
             leave_room(room_code)
-            if room.users == {}:
+            if not room.users:
                 del rooms[code]
             break
     

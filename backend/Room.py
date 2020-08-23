@@ -7,10 +7,10 @@ import time
 class Room:
 
     def __init__(self, room_code):
-        self.emojis = set()
-        self.start_page, self.target_page = choice(pages)
         self.users = {}
         self.room_code = room_code
+        self.emojis = set()
+        self.start_page, self.target_page = choice(pages)
         self.rounds = 1
         #self.round_end = False
         #self.winner = None
@@ -22,24 +22,34 @@ class Room:
 
     def add_user(self, username, sid):
         if sid not in self.users:
+            #Creates user and adds to room
             self.users[sid] = User(username, sid)
+            
+            #Generates unique emoji for user and adds it used emojis for room
             self.emojis.add(self.users[sid].set_emoji(self.emojis))
-            if len(self.users) == 1: self.users[sid].admin = True
+            
+            #Makes user admin if first in room
+            if len(self.users) == 1: 
+                self.users[sid].admin = True
 
     def delete_user(self, sid):
+        #Deletes user from room
         removed = self.users.pop(sid, None)
-        if removed and removed.admin and self.users != {}:
+
+        #If people still in room, makes second person admin
+        if removed and removed.admin and self.users:
             self.users[next(iter(self.users))].admin = True
         return removed
 
     #ROOM METHODS
-    def randomize_pages(self):
-        self.start_page, self.target_page = choice(pages)
 
     def start_game(self):
         print('Starting game internally!')
         print(self.export())
-        self.round_end = False
+
+        #self.round_end = False
+
+        #Resets relevant user statistics for next round
         for user in self.users.values():
             user.clicks = -1
             user.current_page = self.start_page
@@ -61,7 +71,7 @@ class Room:
         completer = self.get_user(sid)
         completer.wins += 1
         self.rounds += 1
-        self.randomize_pages()
+        self.start_page, self.target_page = choice(pages)
 
         ###
         '''
