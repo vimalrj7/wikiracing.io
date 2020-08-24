@@ -1,4 +1,4 @@
-from wikipedia import summary
+#from wikipedia import summary
 
 emojis = {
     '&#128053;',    #Monkey
@@ -45,12 +45,13 @@ pages = [
     ('Roberto_Simanowski', 'Robert_P._Bush')
 ]
 
+'''
 def gen_summary_dictionary(titles):
     dictionary = '{\n'
     for title in titles:
-        dictionary += "\'" + title[0] + "\': \'\'\'" + summary(title[0], chars = 300) + "\'\'\',\n"
-        dictionary += "\'" + title[1] + "\': \'\'\'" + summary(title[1], chars = 300) + "\'\'\',\n"
+        dictionary += "\'" + title[0] + "\': \'\'\'" + summary(title[0], sentences = 3) + "\'\'\',\n"
+        dictionary += "\'" + title[1] + "\': \'\'\'" + summary(title[1], sentences = 3) + "\'\'\',\n"
     return dictionary + '}'
 
 #print(gen_summary_dictionary(pages))
-
+'''

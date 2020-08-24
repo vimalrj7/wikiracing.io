@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {useForm, appendErrors} from "react-hook-form";
+import {useForm} from "react-hook-form";
 import {socket} from "./Socket"
 import './Chat.css'
 import ReactHTMLParser from "react-html-parser";
@@ -8,7 +8,7 @@ import Send from '@material-ui/icons/Send';
 function Chat({userName, roomCode}) {
 
     const [chatMSGS, setchatMSGS] = useState([]);
-    const { register, handleSubmit, errors, reset } = useForm();
+    const { register, handleSubmit } = useForm();
 
 
     useEffect(() => {

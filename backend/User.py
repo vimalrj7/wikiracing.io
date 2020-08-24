@@ -11,8 +11,6 @@ class User:
         self.clicks = -1
         self.wins = 0
         self.time = 0
-        #self.position = 0
-        #self.score = 0
         self.emoji = None
 
     def set_emoji(self, used):

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Redirect, Link, useHistory } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import Chat from "./Chat";
-import Wiki from "./WikiPage";
 import Users from "./Users";
 import Settings from "./Settings";
 import { socket } from "./Socket";
 import "./Game.css";
+import logo from '../assets/logo.png'
 
 function Game({ userName, roomCode }) {
   const [roomData, setRoomData] = useState({});
@@ -39,7 +39,7 @@ function Game({ userName, roomCode }) {
     <div className="game-wrapper">
       <div className="grid-container grid-header">
         <div className="logo">
-          <h1>WIKIRACING</h1>
+          <img className='logo-img' src={logo}/>
         </div>
         <div className="heading">
           <h1 className="room-code">ROOM #{roomCode}</h1>

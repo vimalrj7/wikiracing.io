@@ -3,18 +3,15 @@ from User import User
 from data import pages
 import time
 
-
 class Room:
 
     def __init__(self, room_code):
         self.users = {}
         self.room_code = room_code
         self.emojis = set()
-        self.start_page, self.target_page = choice(pages)
+        #self.start_page, self.target_page = choice(pages)
+        self.start_page, self.target_page = ('Tinder', 'Cotton')
         self.rounds = 1
-        #self.round_end = False
-        #self.winner = None
-        #self.lowest_position = 0
     
     #USER METHODS
     def get_user(self, sid):
@@ -42,12 +39,11 @@ class Room:
         return removed
 
     #ROOM METHODS
+    def randomize_pages(self):
+        self.start_page, self.target_page = choice(pages)
 
     def start_game(self):
-        print('Starting game internally!')
         print(self.export())
-
-        #self.round_end = False
 
         #Resets relevant user statistics for next round
         for user in self.users.values():
@@ -57,8 +53,6 @@ class Room:
     def update_game(self, sid, page):
         user = self.get_user(sid)
         user.current_page = page
-        print('Updating Game Internally')
-        print(user.username, '+' ,user.current_page)
 
         user.clicks += 1
 
@@ -66,28 +60,10 @@ class Room:
             return self.end_game(sid)
 
     def end_game(self, sid):
-        print('Ending game internally, flag changed')
-        #self.round_end = True
         completer = self.get_user(sid)
         completer.wins += 1
         self.rounds += 1
-        self.start_page, self.target_page = choice(pages)
-
-        ###
-        '''
-        completer.position = self.lowest_position + 1
-        self.lowest_position = completer.position
-        completer.score = (4 - completer.position) * 10
-        
-        if completer.position == 1:
-            completer.wins += 1
-        
-        if completer.position == 3 or completer.position == len(self.users):
-            self.rounds += 1
-            self.lowest_position = 0
-            self.randomize_pages()
-        '''
-        ###
+        self.randomize_pages()
         
         print(completer)
 
