@@ -17,13 +17,20 @@ class Room:
         return self.users[sid]
 
     def add_user(self, username, sid):
-        if sid not in self.users:
-            #Creates user and adds to room
-            self.users[sid] = User(username, sid, self.emojis.pop())
-            
-            #Makes user admin if first in room
-            if len(self.users) == 1: 
-                self.users[sid].admin = True
+        if sid not in self.users: 
+            if len(users) < 8:
+                #Creates user and adds to room
+                self.users[sid] = User(username, sid, self.emojis.pop())
+                
+                #Makes user admin if first in room
+                if len(self.users) == 1: 
+                    self.users[sid].admin = True
+
+                #Signify the user was added successfully
+                return True
+        
+            #Signify the user could not be added
+            return False
 
     def delete_user(self, sid):
         #Deletes user from room
@@ -72,7 +79,3 @@ class Room:
                 'room_code': self.room_code,
                 'rounds': self.rounds,
                 'users': {sid: user.export() for sid, user in self.users.items()}}
-
-
-
-#
