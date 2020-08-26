@@ -1,6 +1,6 @@
-from random import choice
+from random import choice, sample
 from User import User
-from data import pages
+from data import pages, emojis
 import time
 
 
@@ -9,7 +9,7 @@ class Room:
     def __init__(self, room_code):
         self.users = {}
         self.room_code = room_code
-        self.emojis = set()
+        self.emojis = sample(emojis, 8)
         self.start_page, self.target_page = choice(pages)
         self.rounds = 1
         #self.round_end = False
@@ -23,7 +23,7 @@ class Room:
     def add_user(self, username, sid):
         if sid not in self.users:
             #Creates user and adds to room
-            self.users[sid] = User(username, sid)
+            self.users[sid] = User(username, sid, self.emojis.pop())
             
             #Generates unique emoji for user and adds it used emojis for room
             self.emojis.add(self.users[sid].set_emoji(self.emojis))
