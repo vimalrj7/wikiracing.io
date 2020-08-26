@@ -21,9 +21,6 @@ class Room:
             #Creates user and adds to room
             self.users[sid] = User(username, sid, self.emojis.pop())
             
-            #Generates unique emoji for user and adds it used emojis for room
-            self.emojis.add(self.users[sid].set_emoji(self.emojis))
-            
             #Makes user admin if first in room
             if len(self.users) == 1: 
                 self.users[sid].admin = True
@@ -35,6 +32,7 @@ class Room:
         #If people still in room, makes second person admin
         if removed and removed.admin and self.users:
             self.users[next(iter(self.users))].admin = True
+            
         return removed
 
     #ROOM METHODS
