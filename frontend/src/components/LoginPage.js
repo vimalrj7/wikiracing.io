@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
-import { Redirect, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
 import { socket } from "./Socket";
 import "./LoginPage.css";
@@ -14,7 +14,7 @@ function LoginPage({
 }) {
 
   const history = useHistory();
-  const { register, handleSubmit, errors, getValues, setValue } = useForm();
+  const { register, handleSubmit, errors } = useForm();
   const [data, setData] = useState({});
 
   useEffect(() => {
@@ -47,7 +47,7 @@ function LoginPage({
       <Switch>
         <div className="wrapper centered">
           <div className="title-container">
-            <h1 className="title">WikiRacing.io</h1>
+            <h1 className="title">wikiracing.io</h1>
           </div>
 
           <Route exact path="/">
@@ -137,8 +137,8 @@ function LoginPage({
           </Route>
           <div className='footer'>
                 <ul className='footer-nav'>
-                  <li className='nav-item'>About</li>
-                  <li className='nav-item'>How To Play</li>
+                  <li className='nav-item instruct-btn'>How To Play</li>
+                  <span className='instruct'>this is how you play the game!</span>
                 </ul>
         </div>
         </div>

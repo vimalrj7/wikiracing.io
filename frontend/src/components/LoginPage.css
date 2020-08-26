@@ -105,6 +105,42 @@ body {
   padding: 0 20px
 }
 
+.instruct {
+  visibility: hidden;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 5px;
+
+  /* Position the tooltip */
+  position: absolute;
+  width: 120px;
+  top: 100%;
+  left: 50%;
+  margin-left: -60px;
+}
+
+.instruct-btn:hover {
+  color: white;
+}
+
+.instruct-btn:hover .instruct {
+  visibility: visible;
+}
+
+.instruct::after {
+  content: " ";
+  position: absolute;
+  top: 100%; /* At the bottom of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+
 
 @media (max-width: 768px) {
   .title {

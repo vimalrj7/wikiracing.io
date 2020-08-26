@@ -37,7 +37,9 @@
   }
 }
 
-
+.logo-img {
+  width: 100px;
+}
 
 .grid-header {
   grid-area: hd;
@@ -45,12 +47,16 @@
   grid-template-columns: 1fr 2fr 1fr;
   justify-content: space-evenly;
   place-items: center;
-
   border: solid #424242;
   padding: 10px;
   border-radius: 5px;
   max-height: 100%;
   background-color: #9575cd;
+}
+
+.start-btn-container {
+  display: grid;
+  justify-items: right;
 }
 
 .logo {

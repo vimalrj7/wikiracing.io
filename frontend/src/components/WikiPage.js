@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { socket } from "./Socket";
 import { useParams, Redirect, Link, useHistory } from "react-router-dom";
-import ReactHTMLParser, { convertNodeToElement } from "react-html-parser";
+import ReactHTMLParser from "react-html-parser";
 import Watch from "./Watch";
 import "./wiki-resources/common.css";
 import "./wiki-resources/vector.css";
 import "./WikiPage.css";
+
 
 function WikiPage({ roomCode }) {
   const [pageData, setPageData] = useState({});
@@ -29,13 +30,14 @@ function WikiPage({ roomCode }) {
       setGameOver(true);
       setWinner(winnerData);
       socket.emit("updateTime", { roomCode, time: time + 1 });
-       let navigateHome = setTimeout(() => {
+      /* setTimeout(() => {
         history.push(`/game/${roomCode}`);
-      }, 5000); 
+      }, 5000);  */
     });
 
     window.addEventListener("popstate", () => {
       history.go(1);
+
     });
   }, [wikiPage]);
 
@@ -71,6 +73,7 @@ function WikiPage({ roomCode }) {
           <h1 className="winner-name">&#127942;{winner["username"]} won!</h1>
           <p className="winner-time"><b>&#128336; Time</b>	{formatTime(time)}</p>
           <p className="winner-clicks"><b>&#128433;&#65039; Clicks</b> {winner["clicks"]}</p>
+          <Link to={`/game/${roomCode}`}><button className="overlay-btn">CONTINUE</button></Link>
         </div>
       ) : null}
 
