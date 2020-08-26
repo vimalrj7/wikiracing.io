@@ -55,8 +55,7 @@
 }
 
 .start-btn-container {
-  display: grid;
-  justify-items: right;
+  display: flex;
 }
 
 .logo {

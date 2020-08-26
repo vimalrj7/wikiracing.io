@@ -3,33 +3,19 @@ from flask_socketio import SocketIO, send, join_room, leave_room, emit
 from User import User
 from Room import Room
 from Page import Page
-from flask_cors import CORS, cross_origin
+#from flask_cors import CORS, cross_origin
 from better_profanity import profanity
 import requests
 import requests_cache
 
 app = Flask(__name__)
-CORS(app)
-app.config['SECRET_KEY'] = 'secret!'
+app.config.from_object('config.ProdConfig')
+
 socketio = SocketIO(app, cors_allowed_origins="*")
-
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-
 
 rooms = {}
 
 requests_cache.install_cache()
-
-#DO WE STILL NEED THIS COMMENTED CODE?
-""" 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/play', methods=['GET'])
-def play():
-    return render_template('play.html')
- """
 
 @socketio.on('join')
 def on_join(data):
@@ -37,8 +23,7 @@ def on_join(data):
     username = data['userName']
     room_code = data['roomCode']
     
-    #do we need this check?
-    if username != '':
+    if username:
 
         if room_code not in rooms:
             rooms[room_code] = Room(room_code)
