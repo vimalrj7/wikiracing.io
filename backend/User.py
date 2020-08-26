@@ -3,7 +3,7 @@ from data import emojis
 
 class User:
 
-    def __init__(self, username, sid):
+    def __init__(self, username, sid, emoji):
         self.username = username
         self.sid = sid
         self.admin = False
@@ -11,11 +11,9 @@ class User:
         self.clicks = -1
         self.wins = 0
         self.time = 0
-        self.emoji = None
-
-    def set_emoji(self, used):
-        self.emoji = sample(emojis^used, 1)[0]
-        return self.emoji
+        #self.position = 0
+        #self.score = 0
+        self.emoji = emoji
 
     def export(self):
         return {'username': self.username,

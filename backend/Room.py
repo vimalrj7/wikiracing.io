@@ -1,16 +1,17 @@
-from random import choice
+from random import choice, sample
 from User import User
-from data import pages
+from data import pages, emojis
 import time
+
+ROOM_LIMIT = 8
 
 class Room:
 
     def __init__(self, room_code):
         self.users = {}
         self.room_code = room_code
-        self.emojis = set()
-        #self.start_page, self.target_page = choice(pages)
-        self.start_page, self.target_page = ('Tinder', 'Cotton')
+        self.emojis = sample(emojis, ROOM_LIMIT)
+        self.start_page, self.target_page = choice(pages)
         self.rounds = 1
     
     #USER METHODS
@@ -18,16 +19,20 @@ class Room:
         return self.users[sid]
 
     def add_user(self, username, sid):
-        if sid not in self.users:
-            #Creates user and adds to room
-            self.users[sid] = User(username, sid)
-            
-            #Generates unique emoji for user and adds it used emojis for room
-            self.emojis.add(self.users[sid].set_emoji(self.emojis))
-            
-            #Makes user admin if first in room
-            if len(self.users) == 1: 
-                self.users[sid].admin = True
+        if sid not in self.users: 
+            if len(users) < ROOM_LIMIT:
+                #Creates user and adds to room
+                self.users[sid] = User(username, sid, self.emojis.pop())
+                
+                #Makes user admin if first in room
+                if len(self.users) == 1: 
+                    self.users[sid].admin = True
+
+                #Signify the user was added successfully
+                return True
+        
+            #Signify the user could not be added
+            return False
 
     def delete_user(self, sid):
         #Deletes user from room
@@ -36,6 +41,7 @@ class Room:
         #If people still in room, makes second person admin
         if removed and removed.admin and self.users:
             self.users[next(iter(self.users))].admin = True
+            
         return removed
 
     #ROOM METHODS
@@ -53,7 +59,6 @@ class Room:
     def update_game(self, sid, page):
         user = self.get_user(sid)
         user.current_page = page
-
         user.clicks += 1
 
         if user.current_page.lower() == self.target_page.lower():
@@ -75,7 +80,3 @@ class Room:
                 'room_code': self.room_code,
                 'rounds': self.rounds,
                 'users': {sid: user.export() for sid, user in self.users.items()}}
-
-
-
-#

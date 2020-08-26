@@ -68,6 +68,29 @@
     margin-right: 10px;
 }
 
+.overlay-btn {
+    background-color: transparent;
+    border: 3px solid #424242;
+    color: #424242;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 1rem;
+    transition: all 0.3s;
+    border-radius: 10px;
+    margin: 15px 10px;
+    outline: none;
+}
+
+.overlay-btn:hover {
+    background: #424242;
+    transition: all 0.3s;
+    border-radius: 10px;
+    color: white;
+    opacity: 85%;
+  }
+
+
  .winner-overlay h1 {
     animation: bop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards infinite
       alternate;   
