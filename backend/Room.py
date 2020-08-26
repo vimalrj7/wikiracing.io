@@ -3,12 +3,14 @@ from User import User
 from data import pages, emojis
 import time
 
+ROOM_LIMIT = 8
+
 class Room:
 
     def __init__(self, room_code):
         self.users = {}
         self.room_code = room_code
-        self.emojis = sample(emojis, 8)
+        self.emojis = sample(emojis, ROOM_LIMIT)
         self.start_page, self.target_page = choice(pages)
         self.rounds = 1
     
@@ -18,7 +20,7 @@ class Room:
 
     def add_user(self, username, sid):
         if sid not in self.users: 
-            if len(users) < 8:
+            if len(users) < ROOM_LIMIT:
                 #Creates user and adds to room
                 self.users[sid] = User(username, sid, self.emojis.pop())
                 
@@ -57,7 +59,6 @@ class Room:
     def update_game(self, sid, page):
         user = self.get_user(sid)
         user.current_page = page
-
         user.clicks += 1
 
         if user.current_page.lower() == self.target_page.lower():
