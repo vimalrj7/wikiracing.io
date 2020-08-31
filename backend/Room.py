@@ -20,19 +20,12 @@ class Room:
 
     def add_user(self, username, sid):
         if sid not in self.users: 
-            if len(users) < ROOM_LIMIT:
-                #Creates user and adds to room
-                self.users[sid] = User(username, sid, self.emojis.pop())
-                
-                #Makes user admin if first in room
-                if len(self.users) == 1: 
-                    self.users[sid].admin = True
-
-                #Signify the user was added successfully
-                return True
-        
-            #Signify the user could not be added
-            return False
+            #Creates user and adds to room
+            self.users[sid] = User(username, sid, self.emojis.pop())
+            
+            #Makes user admin if first in room
+            if len(self.users) == 1: 
+                self.users[sid].admin = True
 
     def delete_user(self, sid):
         #Deletes user from room
@@ -48,9 +41,10 @@ class Room:
     def randomize_pages(self):
         self.start_page, self.target_page = choice(pages)
 
-    def start_game(self):
-        print(self.export())
+    def is_room_full(self):
+        return True if len(self.users) >= ROOM_LIMIT else False 
 
+    def start_game(self):
         #Resets relevant user statistics for next round
         for user in self.users.values():
             user.clicks = -1
@@ -69,8 +63,6 @@ class Room:
         completer.wins += 1
         self.rounds += 1
         self.randomize_pages()
-        
-        print(completer)
 
         return completer
 

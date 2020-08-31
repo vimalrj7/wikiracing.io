@@ -17,9 +17,11 @@ rooms = {}
 
 requests_cache.install_cache()
 
+@app.route('/')
+def hello():
+    return 'This is the backend server for wikiracing.io.'
 @socketio.on('join')
 def on_join(data):
-    print("Joining!")
     username = data['userName']
     room_code = data['roomCode']
     
@@ -32,7 +34,6 @@ def on_join(data):
         join_room(room_code)
 
         room_data = rooms[room_code].export()
-        print(room_data)
 
         emit('updateRoom', room_data, broadcast=True, room=room_code)
 
@@ -43,7 +44,6 @@ def on_join(data):
 
 @socketio.on('disconnect')
 def on_leave():
-    print('Disconnect!')
 
     for code, room in rooms.items():
         if removed := room.delete_user(request.sid):
@@ -65,7 +65,6 @@ def on_leave():
 
 @socketio.on('startRound')
 def start_game(data):
-    print("Starting Game!")
     room_code = data['roomCode']
 
     room = rooms[room_code]
@@ -77,19 +76,16 @@ def start_game(data):
 
 @socketio.on('updateRoom')
 def update_room(data):
-    print('Updating!')
     room_code = data['roomCode']
     room = rooms[room_code]
 
     room_data = room.export()
-    print(room_data)
 
     emit('updateRoom', room_data, broadcast=True, room=room_code)
 
 
 @socketio.on('randomizePages')
 def randomize(data):
-    'Recived Randomize emit'
     room_code = data['roomCode']
     room = rooms[room_code]
 
@@ -101,7 +97,6 @@ def randomize(data):
 
 @socketio.on('updatePage')
 def get_wikipage(data):
-    print('UPDATING PAGE')
     room_code = data['roomCode']
     page_name = data['wikiPage']
     room = rooms[room_code]
@@ -109,22 +104,18 @@ def get_wikipage(data):
     page = Page(page_name, rooms[room_code].target_page).export()
     emit('updatePage', page)
     winner = room.update_game(request.sid, page_name)
-    print('FLAG:', winner)
 
     if winner:
-        print('ENDING GAME') 
         emit('endRound', winner.export(), broadcast=True, room=room_code)
 
 @socketio.on('updateTime')
 def update_time(data):
-    print('UPDATING TIME')
     time = data['time']
     room_code = data['roomCode']
     rooms[room_code].users[request.sid].time = time
 
 @socketio.on('chatMSG')
 def message(data):
-    print('SENDING MESG')
     message = profanity.censor(data['message'], '&#129324')
     user_name = data['userName']
     room_code = data['roomCode']
@@ -136,7 +127,6 @@ def message(data):
 
 @socketio.on('validateData')
 def validate_data():
-    print('Sending data for validation!')
 
     json_data = {}
 
@@ -146,5 +136,5 @@ def validate_data():
     emit('validateData', json_data)
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    app.run()
 

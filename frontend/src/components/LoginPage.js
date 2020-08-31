@@ -16,11 +16,12 @@ function LoginPage({
   const history = useHistory();
   const { register, handleSubmit, errors } = useForm();
   const [data, setData] = useState({});
+  const ROOM_LIMIT = 2
 
   useEffect(() => {
     socket.on("validateData", (validateData) => {
       console.log('Validating', validateData);
-      setData(validateData);
+      setData((data) => validateData);
     });
   }, []);
 
@@ -122,7 +123,14 @@ function LoginPage({
                     required: "Room Code is required.",
                     pattern: {value: /^\d{4}$/, message: 'Room Code must be a 4 digit number.'},
                     validate: async (roomCode) => {socket.emit("validateData")
-                      return (Object.keys(data).includes(roomCode)) ? true : 'This room does not exist.'}
+                      let error = true;
+                      if (!Object.keys(data).includes(roomCode))
+                        error = 'This room does not exist.'
+                      else if (Object.keys(data[roomCode]['users']).length >= ROOM_LIMIT)
+                        error = 'This room is full.'
+                      return error
+                    }
+                      
                   })}
                 />
                 <ErrorMessage errors={errors} name="roomCode" as="p" />
