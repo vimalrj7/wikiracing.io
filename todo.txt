@@ -1,12 +1,6 @@
 fixes:
-- fix router not showing anything
-- clean up css (change colors?)
-- add more pages
-- make aysnc call 
-- fix settings box, add difficulty?
 - tool-tip for admin + buttons
-- make logo
-- make game end
+- How To Play
 
 features:
 - reverse timer, put time limit (how much? customizatable?)
@@ -31,6 +25,13 @@ production:
 -------------------------------------------------------------------------
 
 DONE:
+- make logo
+- make game end
+- make aysnc call 
+- fix settings box, add difficulty?
+- add more pages
+- clean up css (change colors?)
+- fix router not showing anything
 - profanity emoji
 - add round number to options
 - fix game page button css

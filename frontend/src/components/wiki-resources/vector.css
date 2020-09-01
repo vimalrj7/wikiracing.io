@@ -1382,6 +1382,7 @@
       /* Tables */
       .wiki-container table {
           font-size: 100%;
+          width: 100%;
       }
       
       /* Forms */

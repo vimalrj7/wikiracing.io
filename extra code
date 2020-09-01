@@ -8,3 +8,13 @@ def gen_summary_dictionary(titles):
 
 #print(gen_summary_dictionary(pages))
 '''
+
+
+
+
+        <div className="footer">
+          <ul className="footer-nav">
+            <li className="nav-item instruct-btn">How To Play</li>
+            <span className="instruct">this is how you play the game!</span>
+          </ul>
+        </div>

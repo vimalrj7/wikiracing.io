@@ -24,13 +24,19 @@
 
 
 .messages-container {
-    height: 60vh;
+    height: 40vh;
     overflow-y: scroll;
     overscroll-behavior-y: contain;
     scroll-snap-type: y proximity;
     text-align: left;
     padding: 3px;
 }
+
+@media (min-width: 768px) {
+    .messages-container {
+        height: 60vh;
+    }
+  }
 
 .messages-container > div:last-child {
     scroll-snap-align: end;
@@ -62,6 +68,10 @@
     background-color: white;
     float: right;
     margin: 5px 2px 0 0;
+}
+
+.chat-form-container button:hover {
+    cursor: pointer;
 }
 
 .chat-form-container button:active, .chat-form-container button:focus {

@@ -987,9 +987,9 @@ div.user-block {
    1) Where desired
    2) Links when we don't want them to
    3) Bold "links" to the page itself */
-.nowrap,
-.nowraplinks a,
-.nowraplinks .selflink {
+.nowrap
+/* .nowraplinks a,
+.nowraplinks .selflink */ {
 	white-space: nowrap;
 }
 .nowrap pre {

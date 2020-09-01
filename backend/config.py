@@ -5,6 +5,7 @@ class ProdConfig():
     DEBUG = False
     TESTING = False
     SECRET_KEY = os.environ.get('SECRET_KEY')
+    CORS_HEADER = 'Content-Type'
 
 
 class DevConfig():
@@ -12,3 +13,4 @@ class DevConfig():
     DEBUG = True
     TESTING = True
     SECRET_KEY = 'dev'
+    CORS_HEADER = 'Content-Type'

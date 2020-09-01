@@ -7,7 +7,7 @@
     text-align: center;
     padding: 4px 6px;
     border-radius: 6px;
-    opacity: 35%;
+    opacity: 0.35;
     margin: 5px; 
 }
 
@@ -20,7 +20,7 @@
 }
 
 .timer-container:hover, .target-container:hover {
-    opacity: 75%;
+    opacity: 0.75;
 }
 
 .winner-overlay {

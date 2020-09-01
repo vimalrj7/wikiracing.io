@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, send, join_room, leave_room, emit
-from User import User
+from flask_cors import CORS, cross_origin
 from Room import Room
 from Page import Page
 from better_profanity import profanity
@@ -8,7 +8,9 @@ import requests
 import requests_cache
 
 app = Flask(__name__)
-app.config.from_object('config.ProdConfig')
+cors = CORS(app)
+
+app.config.from_object('config.DevConfig')
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -20,11 +22,23 @@ requests_cache.install_cache()
 def hello():
     return 'This is the backend server for wikiracing.io.'
 
+@app.route('/validation_data')
+@cross_origin()
+def validation():
+    json_data = {}
+
+    for code, room in rooms.items():
+        json_data[code] = room.export()
+
+    return json_data
+
+
 @socketio.on('join')
 def on_join(data):
     username = data['userName']
     room_code = data['roomCode']
     
+    #ensure random redirects dont add empty users
     if username:
 
         if room_code not in rooms:
@@ -36,6 +50,7 @@ def on_join(data):
         room_data = rooms[room_code].export()
 
         emit('updateRoom', room_data, broadcast=True, room=room_code)
+        print(room_data)
 
         msg_item = {'username': 'Bot', 'emoji': '&#129302;', 'message': username+' joined the room.'}
 
@@ -136,5 +151,6 @@ def validate_data():
     emit('validateData', json_data)
 
 if __name__ == '__main__':
-    app.run()
+    #app.run()
+    socketio.run(app, debug=True)
 

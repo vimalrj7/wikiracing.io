@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Redirect, useHistory } from "react-router-dom";
+import { Redirect, useHistory, Link } from "react-router-dom";
 import Chat from "./Chat";
 import Users from "./Users";
 import Settings from "./Settings";
@@ -26,6 +26,12 @@ function Game({ userName, roomCode }) {
       console.log("Recived startRound with redirect to", data["startPage"]);
       history.push(`/wiki/${data["startPage"]}`);
     });
+
+    //force socket to reconnect when back button is pressed
+    window.addEventListener("popstate", () => {
+        socket.disconnect();
+        socket.connect();
+    });
   }, []);
 
   function handleStart(e) {
@@ -39,7 +45,7 @@ function Game({ userName, roomCode }) {
     <div className="game-wrapper">
       <div className="grid-container grid-header">
         <div className="logo">
-          <img className='logo-img' src={logo}/>
+          <Link to="/"><img className='logo-img' src={logo}/></Link>
         </div>
         <div className="heading">
           <h1 className="room-code">ROOM #{roomCode}</h1>
