@@ -28,12 +28,6 @@
   padding: 5px;
 }
 
-.page-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  place-items: center;
-}
-
 .title-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -41,17 +35,26 @@
 }
 
 .title-row h3 {
-  margin: 10px 0 0 0;
+  margin: 10px 5px;
   color: #424242;
+}
+
+.page-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
 }
 
 .page-container {
   border: solid #424242;
-  margin-top: 0;
+  margin: 0 5px;
   padding: 0 15px;
   border-radius: 5px;
   height: 100%;
   background-color: white;
+  text-align: center;
+  display: grid;
+  place-items: center;
 }
 
 .page-container h3 {

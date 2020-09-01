@@ -37,11 +37,15 @@ emojis = {
 }
 
 pages = [
-    ('Pilot_error', 'Tinder'), 
-    ('Ohio_State_Route_38', 'Communism'), 
-    ('Mucilaginibacter_litoreus', 'Dab_(dance)'), 
-    ('Bulford', 'Fu_Manchu'), 
-    ('World_Bicycle_Day', 'Kazimierz_Wyka'), 
-    ('Roberto_Simanowski', 'Robert_P._Bush')
+    ('Echo', 'Thermonuclear_weapon'),
+    ('Royal_Navy', 'Computer_virus'),
+    ('Penicillin', 'Adobe_Shockwave_Player'),
+    ('Steall_Waterfall', 'American_Museum_of_Natural_History'),
+    ('The_Mask_Thai_Descendant', 'East_Asian_people'),
+    ('Diminovula_stigma', 'Durham,_England'),
+    ('Elachista_catarata', 'Integrated_Authority_File'),
+    ('Great_Britain_national_long_track_team', 'WikiLeaks'),
+    ('Geno_Dobrevski', 'Adobe_Bridge'),
+    ('ShareChat', 'C._S._Lewis'),
 ]
 

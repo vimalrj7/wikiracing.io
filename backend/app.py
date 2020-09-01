@@ -3,7 +3,6 @@ from flask_socketio import SocketIO, send, join_room, leave_room, emit
 from User import User
 from Room import Room
 from Page import Page
-#from flask_cors import CORS, cross_origin
 from better_profanity import profanity
 import requests
 import requests_cache
@@ -20,6 +19,7 @@ requests_cache.install_cache()
 @app.route('/')
 def hello():
     return 'This is the backend server for wikiracing.io.'
+
 @socketio.on('join')
 def on_join(data):
     username = data['userName']

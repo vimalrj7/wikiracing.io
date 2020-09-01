@@ -16,7 +16,7 @@ function LoginPage({
   const history = useHistory();
   const { register, handleSubmit, errors } = useForm();
   const [data, setData] = useState({});
-  const ROOM_LIMIT = 2
+  const ROOM_LIMIT = 8
 
   useEffect(() => {
     socket.on("validateData", (validateData) => {

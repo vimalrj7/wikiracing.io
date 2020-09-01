@@ -19,12 +19,12 @@
   gap: 10px;
   padding: 10px;
   box-sizing: border-box;
-  grid-template-rows: repeat(4, 1fr);
+/*   grid-template-rows: repeat(4, 1fr);
   grid-template-areas:
     "hd"
     "users"
     "settings"
-    "chat";
+    "chat"; */
 }
 
 @media (min-width: 768px) {
@@ -36,6 +36,7 @@
       "users settings chat";
   }
 }
+
 
 .logo-img {
   width: 100px;
