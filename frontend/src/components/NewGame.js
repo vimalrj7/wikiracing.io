@@ -12,7 +12,7 @@ function NewGame({ setUserName, setRoomCode }) {
     setUserName(data.userName);
 
     //generate a new, unique room code and go to new room
-    fetch("http://localhost:5000/validation_data")
+    fetch("https://wikiracing-backend.herokuapp.com/validation_data")
       .then((res) => {
         return res.json();
       })

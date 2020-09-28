@@ -55,7 +55,7 @@ function JoinGame({ setUserName, setRoomCode }) {
                   message: "Room Code must be a 4 digit number.",
                 },
                 validate: async (roomCode) => {
-                  let valid = fetch("http://localhost:5000/validation_data")
+                  let valid = fetch("https://wikiracing-backend.herokuapp.com/validation_data")
                     .then((res) => {
                       return res.json();
                     })
