@@ -10,7 +10,7 @@ import requests_cache
 app = Flask(__name__)
 cors = CORS(app)
 
-app.config.from_object('config.DevConfig')
+app.config.from_object('config.ProdConfig')
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -140,17 +140,7 @@ def message(data):
 
     emit('chatMSG', msg_item, broadcast=True, room=room_code)
 
-@socketio.on('validateData')
-def validate_data():
-
-    json_data = {}
-
-    for code, room in rooms.items():
-        json_data[code] = room.export()
-
-    emit('validateData', json_data)
-
 if __name__ == '__main__':
-    #app.run()
-    socketio.run(app, debug=True)
+    app.run()
+
 
