@@ -1,5 +1,3 @@
-#from wikipedia import summary
-
 emojis = {
     '&#128053;',    #Monkey
     '&#128054;',    #Dog

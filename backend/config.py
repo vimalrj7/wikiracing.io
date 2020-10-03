@@ -4,7 +4,7 @@ class ProdConfig():
     FLASK_ENV = 'production'
     DEBUG = False
     TESTING = False
-    SECRET_KEY = os.environ.get('SECRET_KEY')
+    SECRET_KEY = os.environ.get('SECRET_KEY') #Secret key in env variables
     CORS_HEADER = 'Content-Type'
 
 

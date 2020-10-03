@@ -2,6 +2,7 @@ import requests
 import requests_cache
 import json
 
+#Install cache for reqeusts
 requests_cache.install_cache()
     
 class Page:

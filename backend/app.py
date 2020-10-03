@@ -38,7 +38,7 @@ def on_join(data):
     username = data['userName']
     room_code = data['roomCode']
     
-    #ensure random redirects dont add empty users
+    #ensure that redirects dont add empty users
     if username:
 
         if room_code not in rooms:
@@ -50,10 +50,9 @@ def on_join(data):
         room_data = rooms[room_code].export()
 
         emit('updateRoom', room_data, broadcast=True, room=room_code)
-        print(room_data)
 
+        # Join message
         msg_item = {'username': 'Bot', 'emoji': '&#129302;', 'message': username+' joined the room.'}
-
         emit('chatMSG', msg_item, broadcast=True, room=room_code)
 
 
@@ -72,8 +71,8 @@ def on_leave():
         room_data = rooms[room_code].export()
         emit('updateRoom', room_data, broadcast = True, room = room_code)
 
+        # Leave message
         msg_item = {'username': 'Bot', 'emoji': '&#129302;', 'message': removed.username+' left the room.'}
-
         emit('chatMSG', msg_item, broadcast=True, room=room_code)
 
 

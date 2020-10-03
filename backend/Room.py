@@ -6,7 +6,6 @@ import time
 ROOM_LIMIT = 8
 
 class Room:
-
     def __init__(self, room_code):
         self.users = {}
         self.room_code = room_code
@@ -55,6 +54,7 @@ class Room:
         user.current_page = page
         user.clicks += 1
 
+        # Return winner data using end_game method
         if user.current_page.lower() == self.target_page.lower():
             return self.end_game(sid)
 

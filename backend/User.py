@@ -8,11 +8,9 @@ class User:
         self.sid = sid
         self.admin = False
         self.current_page = None
-        self.clicks = -1
+        self.clicks = -1 # Start game increments click by 1 to bring it to 0
         self.wins = 0
         self.time = 0
-        #self.position = 0
-        #self.score = 0
         self.emoji = emoji
 
     def export(self):
