@@ -17,6 +17,9 @@ function WikiPage({ roomCode, devMode = false }) {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState({});
+  const [raceData, setRaceData] = useState(null); // live player progress during round
+  const [countdown, setCountdown] = useState(null); // auto-return countdown after win
+  const [gaveUp, setGaveUp] = useState(false);
   const [time, setTime] = useState(0);
   const [winner, setWinner] = useState({});
   const [gameOver, setGameOver] = useState(false);
@@ -95,16 +98,22 @@ function WikiPage({ roomCode, devMode = false }) {
 
     const onUpdatePage = (data) => setUserData(data);
 
+    const onUpdateRoom = (data) => setRaceData(data);
+
     const onEndRound = (winnerData) => {
       // winnerData.time is server-computed (Date.now() - roundStartedAt)
       setGameOver(true);
       setWinner(winnerData);
+      // Auto-return countdown: 10 → 0
+      setCountdown(10);
+      setGaveUp(false);
     };
 
     const onPopstate = () => navigate(1);
 
     if (!devMode) {
       socket.on("updatePage", onUpdatePage);
+      socket.on("updateRoom", onUpdateRoom);
       socket.emit("updatePage", { roomCode, wikiPage });
       socket.on("endRound", onEndRound);
       window.addEventListener("popstate", onPopstate);
@@ -115,15 +124,33 @@ function WikiPage({ roomCode, devMode = false }) {
       if (!devMode) {
         window.removeEventListener("popstate", onPopstate);
         socket.off("updatePage", onUpdatePage);
+        socket.off("updateRoom", onUpdateRoom);
         socket.off("endRound", onEndRound);
       }
     };
   }, [wikiPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Auto-return countdown after round ends
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown === 0) {
+      navigate(`/game/${roomCode}`);
+      return;
+    }
+    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [countdown]); // eslint-disable-line react-hooks/exhaustive-deps
+
   function formatTime(seconds) {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+
+  function handleGiveUp() {
+    if (devMode || gaveUp) return;
+    setGaveUp(true);
+    socket.emit("giveUp", { roomCode });
   }
 
   if (!devMode && roomCode === "") {
@@ -137,15 +164,42 @@ function WikiPage({ roomCode, devMode = false }) {
     <div className="wiki-container">
       {gameOver && (
         <div className="winner-overlay">
-          <h1 className="winner-name">&#127942; {winner["username"]} won!</h1>
-          <p className="winner-time">
-            <b>&#128336; Time</b>&nbsp;&nbsp;{formatTime(winner["time"] ?? time)}
-          </p>
-          <p className="winner-clicks">
-            <b>&#128433;&#65039; Clicks</b> {winner["clicks"]}
-          </p>
+          {winner.allGaveUp ? (
+            <h1 className="winner-name">Everyone gave up!</h1>
+          ) : (
+            <>
+              <h1 className="winner-name">&#127942; {winner["username"]} won!</h1>
+              <p className="winner-time">
+                <b>&#128336; Time</b>&nbsp;&nbsp;{formatTime(winner["time"] ?? time)}
+                &nbsp;&nbsp;<b>&#128433;&#65039; Clicks</b>&nbsp;{winner["clicks"]}
+              </p>
+            </>
+          )}
+
+          {/* Full leaderboard from last race snapshot */}
+          {raceData?.users && (
+            <div className="overlay-leaderboard">
+              {Object.values(raceData.users)
+                .sort((a, b) => {
+                  // Winner first (socket.id match), then by clicks
+                  if (a.user_id === winner.user_id) return -1;
+                  if (b.user_id === winner.user_id) return 1;
+                  return (a.clicks ?? 0) - (b.clicks ?? 0);
+                })
+                .map((u) => (
+                  <div key={u.user_id} className={`overlay-row${u.user_id === winner.user_id ? " overlay-row--winner" : ""}`}>
+                    <span className="overlay-emoji">{u.emoji}</span>
+                    <span className="overlay-name">{u.username}</span>
+                    <span className="overlay-stat">{u.user_id === winner.user_id ? `${u.clicks} clicks` : `${u.clicks >= 0 ? u.clicks : 0} clicks`}</span>
+                  </div>
+                ))}
+            </div>
+          )}
+
           <Link to={`/game/${roomCode}`}>
-            <button className="overlay-btn">CONTINUE</button>
+            <button className="overlay-btn">
+              CONTINUE {countdown !== null ? `(${countdown})` : ""}
+            </button>
           </Link>
         </div>
       )}
@@ -156,7 +210,34 @@ function WikiPage({ roomCode, devMode = false }) {
         <div className="target-container">
           Target: <strong>{userData["target"] || (devMode ? "—" : "...")}</strong>
         </div>
+        {!devMode && !gameOver && (
+          <button
+            className={`give-up-btn${gaveUp ? " give-up-btn--done" : ""}`}
+            onClick={handleGiveUp}
+            disabled={gaveUp}
+            title="Give up this round"
+          >
+            {gaveUp ? "✓ Gave up" : "Give up"}
+          </button>
+        )}
       </div>
+
+      {/* Live race scoreboard — shows all players' clicks + current page */}
+      {raceData?.isRoundActive && raceData.users && (
+        <div className="race-scoreboard">
+          {Object.values(raceData.users)
+            .sort((a, b) => b.clicks - a.clicks)
+            .map((u) => (
+              <div key={u.user_id} className="race-row">
+                <span className="race-emoji">{u.emoji}</span>
+                <span className="race-page" title={u.current_page?.replaceAll("_", " ")}>
+                  {u.current_page?.replaceAll("_", " ") ?? "—"}
+                </span>
+                <span className="race-clicks">{u.clicks >= 0 ? u.clicks : 0}</span>
+              </div>
+            ))}
+        </div>
+      )}
 
       {/* Wikipedia article */}
       <div className="wiki-article-wrapper">

@@ -10,6 +10,8 @@ import logo from '../assets/logo.png'
 function Game({ userName, roomCode }) {
   const [roomData, setRoomData] = useState({});
   const [errorMsg, setErrorMsg] = useState("");
+  const [starting, setStarting] = useState(false);
+  const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
 
   const admin = roomData["data"] ? roomData["data"]["users"][socket.id]?.['admin'] : null;
@@ -22,6 +24,7 @@ function Game({ userName, roomCode }) {
 
     const onUpdateRoom = (data) => {
       setRoomData({ ...roomData, data });
+      setStarting(false); // re-enable PLAY if updateRoom fires (e.g. admin changed)
     };
 
     const onStartRound = (data) => {
@@ -47,8 +50,15 @@ function Game({ userName, roomCode }) {
     };
   }, []);
 
-  function handleStart(e) {
-    console.log("Emitting startRound");
+  function handleCopyCode() {
+    navigator.clipboard.writeText(roomCode).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  function handleStart() {
+    setStarting(true);
     socket.emit("startRound", { roomCode });
   }
 
@@ -67,9 +77,12 @@ function Game({ userName, roomCode }) {
         </div>
         <div className="heading">
           <h1 className="room-code">ROOM #{roomCode}</h1>
+          <button className="copy-code-btn" onClick={handleCopyCode} title="Copy room code">
+            {copied ? "✓ Copied!" : "📋 Copy"}
+          </button>
         </div>
         <div className="start-btn-container">
-          <button className="play-btn main-button" disabled={!admin}  onClick={handleStart}>
+          <button className="play-btn main-button" disabled={!admin || starting} onClick={handleStart}>
             PLAY
           </button>
         </div>
