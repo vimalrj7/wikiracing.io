@@ -1,30 +1,215 @@
-.timer-container, .target-container {
+.wiki-timer, .target-container {
     position: fixed;
-    z-index: 1;
-    top: 5px;
-    background-color: black;
+    z-index: 100;
+    top: 8px;
+    background-color: rgba(0, 0, 0, 0.75);
     color: #fff;
     text-align: center;
-    padding: 4px 6px;
+    padding: 4px 10px;
     border-radius: 6px;
-    opacity: 0.35;
-    margin: 5px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    backdrop-filter: blur(4px);
+    user-select: none;
 }
 
 .stats-container {
-   /* position: fixed; */
+    /* anchor for the fixed children */
 }
 
-.timer-container {
-    right: 5px;
+.wiki-timer {
+    right: 8px;
 }
 
 .target-container {
-    right: 75px;
+    right: 80px;
 }
 
-.timer-container:hover, .target-container:hover {
-    opacity: 0.75;
+.wiki-timer:hover, .target-container:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.wiki-loading {
+    padding: 3rem;
+    text-align: center;
+    color: #54595d;
+    font-style: italic;
+}
+
+.wiki-dev-badge {
+    display: inline-block;
+    background: #e84040;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+}
+
+.wiki-article-wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 16px 24px 60px;
+}
+
+/* Reset font inside article to Wikipedia's sans-serif stack,
+   overriding the global Roboto Mono applied by App.css */
+.wiki-article-wrapper,
+.wiki-article-wrapper * {
+    font-family: -apple-system, BlinkMacSystemFont, "Linux Libertine",
+        "Segoe UI", Roboto, Lato, Helvetica, Arial, sans-serif;
+}
+
+/* Keep code/pre blocks monospace */
+.wiki-article-wrapper code,
+.wiki-article-wrapper pre,
+.wiki-article-wrapper kbd,
+.wiki-article-wrapper tt,
+.wiki-article-wrapper .mw-code {
+    font-family: "Courier New", Courier, monospace;
+}
+
+/* ── Wikipedia article content styles ──────────────────────────────────────
+   The Vector skin CSS covers chrome; article content styles (infobox, toc,
+   tables) come from MediaWiki:Common.css which we replicate here.         */
+
+/* Infobox */
+.wiki-article-wrapper .infobox {
+    float: right;
+    clear: right;
+    margin: 0 0 1em 1.4em;
+    padding: 0.2em;
+    border: 1px solid #a2a9b1;
+    background: #f8f9fa;
+    font-size: 88%;
+    line-height: 1.6em;
+    max-width: 300px;
+}
+.wiki-article-wrapper .infobox caption {
+    font-weight: bold;
+    font-size: 108%;
+    padding: 0.3em 0.4em;
+    text-align: center;
+}
+.wiki-article-wrapper .infobox th,
+.wiki-article-wrapper .infobox td {
+    padding: 0.2em 0.4em;
+    vertical-align: top;
+}
+.wiki-article-wrapper .infobox th {
+    background: none;
+    text-align: left;
+    white-space: nowrap;
+    font-weight: bold;
+}
+.wiki-article-wrapper .infobox img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Table of contents */
+.wiki-article-wrapper .toc {
+    display: table;
+    padding: 0.5em 0.8em;
+    background: #f8f9fa;
+    border: 1px solid #a2a9b1;
+    font-size: 95%;
+    margin-bottom: 1em;
+}
+.wiki-article-wrapper .toctitle {
+    text-align: center;
+    font-weight: bold;
+}
+.wiki-article-wrapper .tocnumber {
+    margin-right: 0.4em;
+    color: #54595d;
+}
+.wiki-article-wrapper .toc ul {
+    list-style: none;
+    margin: 0.3em 0;
+    padding-left: 1.2em;
+}
+.wiki-article-wrapper .toc li {
+    margin: 0.15em 0;
+}
+
+/* Wikitables */
+.wiki-article-wrapper .wikitable {
+    background: #f8f9fa;
+    border-collapse: collapse;
+    font-size: 90%;
+    margin: 1em 0;
+}
+.wiki-article-wrapper .wikitable th,
+.wiki-article-wrapper .wikitable td {
+    border: 1px solid #a2a9b1;
+    padding: 0.2em 0.4em;
+    vertical-align: top;
+}
+.wiki-article-wrapper .wikitable th {
+    background: #eaecf0;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Figures and image thumbs */
+.wiki-article-wrapper .thumb {
+    margin: 0.5em 1.4em 1em 0;
+    display: table;
+}
+.wiki-article-wrapper .thumb.tright { float: right; clear: right; }
+.wiki-article-wrapper .thumb.tleft  { float: left;  clear: left;  }
+.wiki-article-wrapper .thumbcaption {
+    font-size: 85%;
+    line-height: 1.4em;
+    padding: 0.3em 0;
+    color: #54595d;
+}
+.wiki-article-wrapper .thumbimage img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid #a2a9b1;
+}
+
+/* References */
+.wiki-article-wrapper .reflist {
+    font-size: 90%;
+    column-count: 2;
+    column-gap: 2em;
+}
+.wiki-article-wrapper sup.reference a {
+    font-size: 85%;
+}
+
+/* Hatnotes (disambiguation notices) */
+.wiki-article-wrapper .hatnote {
+    font-style: italic;
+    padding: 0.3em 1em;
+    margin: 0.5em 0;
+    color: #54595d;
+}
+
+/* Section headings */
+.wiki-article-wrapper h2 {
+    border-bottom: 1px solid #a2a9b1;
+    margin: 1.4em 0 0.4em;
+    font-size: 1.5em;
+    font-weight: normal;
+}
+.wiki-article-wrapper h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.3em;
+}
+
+/* Clear floats after sections */
+.wiki-article-wrapper .mw-parser-output::after {
+    content: "";
+    display: table;
+    clear: both;
 }
 
 .winner-overlay {

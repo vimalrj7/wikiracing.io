@@ -1,40 +1,23 @@
 import React, { useEffect } from "react";
 
-function Watch( { time, setTime, gameOver } ) {
-  
-    function updateTime() {
-        setTime((time) => time + 1);
-    }
-
-    function formatTime(seconds) {
-        const minutes = Math.floor(seconds/60)
-        const rem_seconds = seconds % 60;
-
-        function str_pad_left(string,pad,length) {
-            return (new Array(length+1).join(pad)+string).slice(-length);
-        }
-
-        return str_pad_left(minutes,'0',2)+':'+str_pad_left(rem_seconds,'0',2)
-
-    }
+function Watch({ time, setTime, gameOver }) {
 
   useEffect(() => {
-    let interval = null;
-    if (!gameOver){
-    interval = setInterval(() => {
-        updateTime();
-    }, 1000);
-    } else if (gameOver && time !== 0){
-      clearInterval(interval)
-    }
-    return () => {
-        clearInterval(interval)
-    };
-  }, [time]);
+    if (gameOver) return;
+    const interval = setInterval(() => setTime(prev => prev + 1), 1000);
+    return () => clearInterval(interval);
+  }, [gameOver]); // functional updater — no dependency on time
+
+  function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const rem = seconds % 60;
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${pad(minutes)}:${pad(rem)}`;
+  }
 
   return (
-    <div className="timer-container">
-    {formatTime(time)}
+    <div className="wiki-timer">
+      {formatTime(time)}
     </div>
   );
 }
