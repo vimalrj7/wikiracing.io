@@ -101,31 +101,39 @@ Fix the known frontend bugs now that both servers are running.
 
 ---
 
-## Phase 4 — UX Polish
+## Phase 4 — UX Polish ✅
 
-- [ ] **Loading states** — spinner while Wikipedia page fetches; "joining..." skeleton in Game lobby
-- [ ] **Disable PLAY after click** — prevent double-starts; re-enable on `updateRoom`
-- [ ] **Live race progress** — show `current_page` and `clicks` per player in leaderboard during round (needs `isRoundActive` from 3c ✅)
-- [ ] **Room code copy button** — one-click copy to clipboard
-- [ ] **Winner overlay** — show full leaderboard (all players' clicks + time), auto-return countdown
-- [ ] **Give Up button** — emit `giveUp` event; backend marks DNF; if all give up, end round
-- [ ] **Error toasts** — upgrade `gameError` banner to MUI Snackbar in `NewGame.jsx` / `JoinGame.jsx` / `Game.jsx`
-- [ ] Commit per feature area
+- [x] **Disable PLAY after click** — prevent double-starts; re-enable on `updateRoom`
+- [x] **Live race progress** — `updateRoom` broadcast in `updatePage` handler; `WikiPage` shows live compact scoreboard
+- [x] **Room code copy button** — one-click copy to clipboard in `Game.jsx`
+- [x] **Winner overlay** — full leaderboard (all players' clicks + time), auto-return 10s countdown
+- [x] **Give Up button** — `giveUp` socket event; backend marks DNF with bot chat message; if all give up, end round with `allGaveUp: true`
+- [x] Commit: `feat: phase 4 UX polish — give up, winner overlay, live scoreboard, copy code`
 
 ---
 
-## Phase 5 — Custom Page Selection
+## Phase 5 — Custom Page Selection ✅
 
-- [ ] **Page search UI** — admin searches via Wikipedia OpenSearch API; random button still present
-- [ ] **Validate via summary API** — resolve redirects, confirm page exists
-- [ ] **Win detection via canonical titles** — compare against canonical from summary API
-- [ ] **Update `randomizePages`** — accept explicit `{ startPage, targetPage }` payload
+- [x] **`WikiSearch` component** — debounced (280ms) Wikipedia `action=query&list=search` API, AbortController, live scrollable dropdown with `searchmatch` span highlighting
+- [x] **Settings.jsx** rewritten — two `WikiSearch` pickers for admin; non-admin sees disabled inputs
+- [x] **`setPages` backend event** — admin-only, blocked if `isRoundActive`, updates start/target, broadcasts `updateRoom`
+- [x] Commit: `feat: phase 5 custom page selection with live Wikipedia search`
 
 ---
 
-## Phase 6 — Wikipedia Rendering Overhaul (on feature/wikipedia-rendering-overhaul branch)
+## Phase 6 — Wikipedia Page Polish ✅
 
-See that branch for details.
+- [x] **Removed Vector CDN CSS** — it applied `display:grid` to `.mw-body`, misplacing content off-screen. All needed styles now in `WikiPage.css`
+- [x] **White background** — `body:has(.wiki-page)` overrides global cyan; article wrapper is `#fff`
+- [x] **Sticky game bar** (48px, `#9575cd` purple) — Give Up left, target centered, compact player chips + timer right
+- [x] **TOC injection** — `sections` prop added to parse API call; `buildTocHtml()` injects TOC HTML before first `<h2` so it appears after intro/infobox, before first section (just like real Wikipedia)
+- [x] **`#anchor` links** allowed through html-react-parser (TOC clicks + footnote refs)
+- [x] **Infobox CSS** — `width: 22em`, `border-collapse: collapse`, `infobox-label` centered, `infobox-title`/`infobox-above` centered bold, `infobox-image`/`infobox-caption` centered
+- [x] **Image thumbnails** — both old `.thumb/.thumbinner` and new `<figure>/<figcaption>` formats: border box, `#f8f9fa` background, caption contained to image width, text wrapping float
+- [x] **Wikipedia-style links** — `color: #0645ad`, no underline, underline on hover, visited `#0b0080`
+- [x] **Hidden [edit] links** — `.mw-editsection { display: none }`
+- [x] **Body margin reset** — `margin: 0; padding: 0` on body prevents whitespace around game bar
+- [x] Commit: `feat: phase 6 wikipedia page polish`
 
 ---
 

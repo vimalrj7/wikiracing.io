@@ -272,9 +272,21 @@ html:has(.wiki-page) {
 .wiki-toc-num {
     color: #54595d;
     flex-shrink: 0;
-    min-width: 1.6em;
+    margin-right: 0.3em;
 }
 
+
+/* ── Wikipedia-style links ───────────────────────────────────── */
+.wiki-article-wrapper a {
+    color: #0645ad;
+    text-decoration: none;
+}
+.wiki-article-wrapper a:hover {
+    text-decoration: underline;
+}
+.wiki-article-wrapper a:visited {
+    color: #0b0080;
+}
 
 /* ── Wikipedia article content styles ───────────────────────────
    MediaWiki:Common.css rules not covered by Vector skin CDN      */
@@ -284,30 +296,76 @@ html:has(.wiki-page) {
     float: right;
     clear: right;
     margin: 0 0 1em 1.4em;
-    padding: 0.2em;
+    padding: 0;
     border: 1px solid #a2a9b1;
     background: #f8f9fa;
     font-size: 88%;
-    line-height: 1.6em;
-    max-width: 300px;
+    line-height: 1.5em;
+    width: 22em;
+    border-collapse: collapse;
 }
+
+/* Title row (e.g. "Albert Einstein" at top of infobox) */
+.wiki-article-wrapper .infobox-title,
+.wiki-article-wrapper .infobox .infobox-above,
 .wiki-article-wrapper .infobox caption {
     font-weight: bold;
     font-size: 108%;
-    padding: 0.3em 0.4em;
+    padding: 0.4em 0.6em;
     text-align: center;
+    background: none;
 }
+
+/* Image row */
+.wiki-article-wrapper .infobox-image,
+.wiki-article-wrapper .infobox .infobox-full-data {
+    text-align: center;
+    padding: 0.4em 0.6em;
+}
+
+/* Caption under the image */
+.wiki-article-wrapper .infobox-caption {
+    text-align: center;
+    font-size: 94%;
+    padding: 0.2em 0.6em 0.5em;
+    color: #54595d;
+}
+
+/* All cells default */
 .wiki-article-wrapper .infobox th,
 .wiki-article-wrapper .infobox td {
     padding: 0.2em 0.4em;
-    vertical-align: top;
+    vertical-align: middle;
 }
-.wiki-article-wrapper .infobox th {
-    background: none;
-    text-align: left;
+
+/* Label column — centered within its column, bold */
+.wiki-article-wrapper .infobox-label,
+.wiki-article-wrapper .infobox th.infobox-label {
+    text-align: center;
     white-space: nowrap;
     font-weight: bold;
+    width: 35%;
+    vertical-align: top;
+    padding: 0.2em 0.5em 0.2em 0.4em;
 }
+
+/* Data column — left-aligned within its column */
+.wiki-article-wrapper .infobox-data,
+.wiki-article-wrapper .infobox td.infobox-data {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.2em 0.4em;
+}
+
+/* Section header rows (e.g. "Scientific career") */
+.wiki-article-wrapper .infobox th[colspan],
+.wiki-article-wrapper .infobox .infobox-header {
+    text-align: center;
+    font-weight: bold;
+    background: none;
+    padding: 0.3em 0.4em;
+}
+
 .wiki-article-wrapper .infobox img {
     max-width: 100%;
     height: auto;
@@ -379,24 +437,85 @@ html:has(.wiki-page) {
     text-align: center;
 }
 
-/* Figures and image thumbs */
+/* ── Figures and image thumbs ────────────────────────────────────
+   Handles both old .thumb/.thumbinner and new <figure> formats.
+   Both float and wrap text; caption is constrained to image width. */
+
+/* Old format: .thumb > .thumbinner > img + .thumbcaption */
 .wiki-article-wrapper .thumb {
-    margin: 0.5em 1.4em 1em 0;
-    display: table;
+    display: block;
 }
-.wiki-article-wrapper .thumb.tright { float: right; clear: right; }
-.wiki-article-wrapper .thumb.tleft  { float: left;  clear: left;  }
+.wiki-article-wrapper .thumb.tright {
+    float: right;
+    clear: right;
+    margin: 0.5em 0 1em 1.4em;
+}
+.wiki-article-wrapper .thumb.tleft {
+    float: left;
+    clear: left;
+    margin: 0.5em 1.4em 1em 0;
+}
+.wiki-article-wrapper .thumbinner {
+    display: inline-block;
+    background: #f8f9fa;
+    border: 1px solid #c8ccd1;
+    padding: 3px;
+    font-size: 94%;
+    /* width is set inline by Wikipedia's HTML */
+}
 .wiki-article-wrapper .thumbcaption {
+    display: block;
     font-size: 85%;
     line-height: 1.4em;
-    padding: 0.3em 0;
+    padding: 0.3em 0.2em 0.1em;
     color: #54595d;
+    text-align: center;
 }
-.wiki-article-wrapper .thumbimage img {
+.wiki-article-wrapper .magnify {
+    float: right;
+    margin-left: 3px;
+}
+
+/* New format: <figure> > img + <figcaption> */
+.wiki-article-wrapper figure {
+    display: table;          /* shrink-wraps to image width */
+    background: #f8f9fa;
+    border: 1px solid #c8ccd1;
+    padding: 3px;
+    float: right;
+    clear: right;
+    margin: 0.5em 0 1em 1.4em;
+}
+.wiki-article-wrapper figure.mw-halign-left {
+    float: left;
+    clear: left;
+    margin: 0.5em 1.4em 1em 0;
+}
+.wiki-article-wrapper figure.mw-halign-none,
+.wiki-article-wrapper figure.mw-halign-center {
+    float: none;
+    margin: 1em auto;
+    display: block;
+    text-align: center;
+}
+.wiki-article-wrapper figcaption {
+    display: table-caption;  /* contained to figure width */
+    caption-side: bottom;
+    font-size: 85%;
+    line-height: 1.4em;
+    padding: 0.3em 0.2em;
+    color: #54595d;
+    text-align: center;
+}
+
+/* Image itself */
+.wiki-article-wrapper figure img,
+.wiki-article-wrapper .thumbimage img,
+.wiki-article-wrapper .thumb img {
     max-width: 100%;
     height: auto;
     display: block;
-    border: 1px solid #a2a9b1;
+    border: 1px solid #c8ccd1;
 }
 
 /* References */
@@ -415,6 +534,11 @@ html:has(.wiki-page) {
     padding: 0.3em 1em;
     margin: 0.5em 0;
     color: #54595d;
+}
+
+/* Hide [edit] section links injected by MediaWiki */
+.wiki-article-wrapper .mw-editsection {
+    display: none;
 }
 
 /* Section headings */

@@ -4,6 +4,27 @@ import { useParams, Navigate, Link, useNavigate } from "react-router-dom";
 import parse, { domToReact } from "html-react-parser";
 import "./WikiPage.css";
 
+// Build TOC HTML to inject into article before first <h2
+function buildTocHtml(sections) {
+  const items = sections
+    .filter((s) => s.toclevel <= 2)
+    .map(
+      (s) =>
+        `<li class="wiki-toc-item wiki-toc-l${s.toclevel}">` +
+        `<a href="#${s.anchor}">` +
+        `<span class="wiki-toc-num">${s.number}</span>` +
+        `<span>${s.line}</span>` +
+        `</a></li>`
+    )
+    .join("");
+  return (
+    `<div class="wiki-toc">` +
+    `<div class="wiki-toc-title">Contents</div>` +
+    `<ol class="wiki-toc-list">${items}</ol>` +
+    `</div>`
+  );
+}
+
 // Non-article namespaces — links to these become plain spans (not game navigation)
 const SKIP_NAMESPACES = [
   "File:", "Help:", "Wikipedia:", "Special:", "Template:",
@@ -55,7 +76,12 @@ function WikiPage({ roomCode, devMode = false }) {
         );
       }
 
-      // Strip all other <a> (external links, anchors)
+      // Allow in-page anchor links (TOC, footnote refs) — keep as <a>
+      if (node.name === "a" && node.attribs.href?.startsWith("#")) {
+        return;
+      }
+
+      // Strip all other <a> (external links)
       if (node.name === "a") {
         return <span>{domToReact(node.children, optionsRef.current)}</span>;
       }
@@ -89,8 +115,17 @@ function WikiPage({ roomCode, devMode = false }) {
       ).then((r) => r.json()),
     ])
       .then(([parseData, summaryData]) => {
-        if (parseData.parse?.text?.["*"]) setHtml(parseData.parse.text["*"]);
-        if (parseData.parse?.sections) setSections(parseData.parse.sections);
+        const sects = parseData.parse?.sections ?? [];
+        let htmlText = parseData.parse?.text?.["*"] ?? "";
+        // Inject TOC into the HTML before the first <h2 (after intro + infobox)
+        if (sects.length >= 3 && htmlText) {
+          const h2Idx = htmlText.indexOf("<h2");
+          if (h2Idx !== -1) {
+            htmlText = htmlText.slice(0, h2Idx) + buildTocHtml(sects) + htmlText.slice(h2Idx);
+          }
+        }
+        if (htmlText) setHtml(htmlText);
+        setSections(sects);
         setSummary(summaryData);
         setLoading(false);
         window.scrollTo(0, 0);
@@ -250,25 +285,6 @@ function WikiPage({ roomCode, devMode = false }) {
             {summary?.description && (
               <div className="wiki-description">{summary.description}</div>
             )}
-            <div className="wiki-from-line">From Wikipedia, the free encyclopedia</div>
-
-            {/* Table of contents — built from parse API sections data */}
-            {sections.length >= 3 && (
-              <div className="wiki-toc">
-                <div className="wiki-toc-title">Contents</div>
-                <ol className="wiki-toc-list">
-                  {sections.filter(s => s.toclevel <= 2).map(s => (
-                    <li key={s.anchor} className={`wiki-toc-item wiki-toc-l${s.toclevel}`}>
-                      <a href={`#${s.anchor}`}>
-                        <span className="wiki-toc-num">{s.number}</span>
-                        <span dangerouslySetInnerHTML={{ __html: s.line }} />
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-
             {/* mw-parser-output keeps article styles; mw-content-ltr sets ltr direction */}
             <div className="mw-content-ltr mw-parser-output" lang="en" dir="ltr">
               {parsedContent}

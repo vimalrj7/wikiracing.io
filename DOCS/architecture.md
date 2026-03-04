@@ -69,15 +69,13 @@ deleteSocketRoom(socketId)          → void
 }
 ```
 
-### Planned Room Shape (Phase 3)
+```
+
+Current room shape also includes:
 ```js
-{
-  // ... same as above, plus:
-  isRoundActive:  Boolean,     // true between startRound and endRound; gates updatePage
-  roundStartedAt: Number,      // Date.now() set on startRound; server computes elapsed time
-  // clicks starts at 0 (not -1) once isRoundActive gate is in place
-  // time field removed from user shape (server computes it)
-}
+  isRoundActive:  Boolean,     // true between startRound and endRound; gates updatePage clicks
+  roundStartedAt: Number,      // Date.now() set on startRound; elapsed computed on endRound
+  // user.clicks starts at 0; user.time removed (server computes elapsed)
 ```
 
 ### Socket Event Map
@@ -87,13 +85,14 @@ deleteSocketRoom(socketId)          → void
 | `join` | client→server | Join or re-join a room |
 | `disconnect` | server internal | Clean up user, transfer admin |
 | `startRound` | client→server | Admin starts the race |
-| `updateRoom` | server→room | Broadcast full room state |
+| `updateRoom` | server→room | Broadcast full room state (also sent after every `updatePage`) |
 | `randomizePages` | client→server | Admin picks new random pages |
 | `updatePage` | client→server + server→sender | Player navigated to new page |
-| `updateTime` | client→server | Client pushes elapsed time (being replaced by server-side) |
 | `chatMSG` | bidirectional | Chat message |
-| `endRound` | server→room | Round over, winner announced |
-| `error` | server→sender | Room not found, full, etc. (planned) |
+| `endRound` | server→room | Round over, winner announced (includes `allGaveUp: true` if applicable) |
+| `gameError` | server→sender | Room not found, full, etc. |
+| `giveUp` | client→server | Player gives up; backend marks DNF, sends bot message, ends round if all gave up |
+| `setPages` | client→server | Admin sets custom start/target pages (admin-only, blocked if `isRoundActive`) |
 
 ### Handler Logic
 
@@ -161,11 +160,12 @@ App.jsx
   ├── NewGame.jsx      (userName, roomCode state setters)
   ├── JoinGame.jsx     (userName, roomCode state setters)
   ├── Game.jsx         (roomData from updateRoom events)
-  │     ├── Users.jsx  (leaderboard)
-  │     ├── Settings.jsx
+  │     ├── Users.jsx  (leaderboard — shows current_page + clicks during round)
+  │     ├── Settings.jsx  (WikiSearch pickers for admin; RANDOMIZE button)
   │     └── Chat.jsx
-  └── WikiPage.jsx     (Wikipedia rendering, timer, win detection)
-        └── Watch.jsx  (stopwatch)
+  ├── WikiSearch.jsx   (debounced Wikipedia search dropdown, used in Settings)
+  └── WikiPage.jsx     (Wikipedia rendering, inline timer, win detection, give-up)
+        └── (Watch.jsx removed — timer interval inlined in WikiPage)
 ```
 
 ### Socket Lifecycle (current vs planned)
@@ -174,23 +174,30 @@ App.jsx
 
 **Planned (Phase 3)**: Socket connects lazily when user enters a game. `Socket.js` exports `socket` with `autoConnect: false`; `Game.jsx` calls `socket.connect()` on mount and `socket.disconnect()` on unmount.
 
-### Wikipedia Rendering (current — post Phase 3a)
+### Wikipedia Rendering (current — post Phase 6)
 
 `WikiPage.jsx` uses **two parallel fetches** per page navigation:
 
-1. **`w/api.php?action=parse&prop=text|displaytitle&origin=*`** — returns JSON with `parse.text["*"]` containing a clean `<div class="mw-parser-output">` body (no `<html>/<head>/<body>` wrappers). Internal links use `href="/wiki/Page_Name"` format.
+1. **`w/api.php?action=parse&prop=text|displaytitle|sections&origin=*`** — returns JSON with `parse.text["*"]` (clean article HTML) and `parse.sections` (array of `{toclevel, number, line, anchor}` for TOC).
 
-2. **`api/rest_v1/page/summary/{title}`** — returns `thumbnail.source`, `description`, `titles.normalized` for the article header.
+2. **`api/rest_v1/page/summary/{title}`** — returns `description`, `titles.normalized` for the article header.
+
+**TOC injection**: `buildTocHtml(sections)` builds a TOC HTML string from the sections data and splices it into the article HTML immediately before the first `<h2` — so it appears after the intro paragraphs and floated infobox, exactly like real Wikipedia.
 
 `html-react-parser` options (memoized via `useRef` + `useMemo`):
 - `<a href="/wiki/Page">` → `<Link to="/wiki/Page">` (game navigation) or `<Link to="/preview/Page">` (dev mode)
+- `<a href="#anchor">` → kept as-is (TOC clicks, footnote refs)
 - Skip `File:`, `Help:`, `Wikipedia:`, `Special:`, `Template:`, `Category:`, `Talk:`, `Portal:`, `User:`, `Draft:` namespaces → `<span>`
 - All other `<a>` → `<span>` (strips external links)
-- Anchor fragments stripped from page names
 
 Parsed content is **memoized**: `useMemo([html])` — only re-parses when html string changes, not on every timer tick.
 
-**CSS**: `index.html` loads Wikipedia Vector skin CSS. `WikiPage.css` adds infobox, TOC, wikitable, and thumb styles from `MediaWiki:Common.css` (not included in the Vector skin bundle). Article font resets global `Roboto Mono` to Wikipedia's sans-serif stack.
+**CSS** (`WikiPage.css`): Wikipedia Vector CDN CSS was **removed** (it applied `display:grid` to `.mw-body`, misplacing content). All article styles live in `WikiPage.css`:
+- Infobox: `width:22em`, `border-collapse:collapse`, `infobox-label` centered, title/image/caption rows centered
+- Images: both old `.thumb/.thumbinner` and new `<figure>/<figcaption>` — border box, `#f8f9fa` bg, text-wrapping float, caption contained to image width
+- TOC: `wiki-toc` class, injected into HTML, styled to match Wikipedia
+- Links: `color:#0645ad`, no underline, underline on hover
+- `[edit]` links: hidden via `.mw-editsection { display:none }`
 
 Note: `rest_v1/page/mobile-sections` is **decommissioned** (HTTP 403, Phabricator T328036).
 
