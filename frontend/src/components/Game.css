@@ -92,3 +92,19 @@
 .play-btn {
   font-size: 1.25em;
 }
+
+.copy-code-btn {
+  background: transparent;
+  border: 2px solid rgba(255,255,255,0.6);
+  color: white;
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: 0.75em;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: background 0.2s;
+}
+
+.copy-code-btn:hover {
+  background: rgba(255,255,255,0.2);
+}

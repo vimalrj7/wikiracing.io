@@ -191,6 +191,7 @@ io.on('connection', (socket) => {
       room.users[userId].clicks = -1;  // -1 so start-page updatePage brings it to 0
       room.users[userId].current_page = room.start_page;
       room.users[userId].time = 0;
+      room.users[userId].gaveUp = false;
     }
     setRoom(roomCode, room);
 
@@ -245,6 +246,9 @@ io.on('connection', (socket) => {
     room.users[socket.id].current_page = page;
     setRoom(roomCode, room);
 
+    // Broadcast live race progress to all players
+    io.to(roomCode).emit('updateRoom', exportRoom(room));
+
     // Win check (case-insensitive)
     if (page.toLowerCase() === room.target_page.toLowerCase()) {
       // Compute server-side elapsed time
@@ -268,6 +272,39 @@ io.on('connection', (socket) => {
       setRoom(roomCode, room);
 
       io.to(roomCode).emit('endRound', winnerSnapshot);
+    }
+  });
+
+  // --------------------------------------------------------------------
+  // giveUp — player forfeits; if all players gave up, end the round
+  // --------------------------------------------------------------------
+  socket.on('giveUp', (data) => {
+    const roomCode = parseInt(data?.roomCode, 10);
+    const room = getRoom(roomCode);
+    if (!room || !room.users[socket.id] || !room.isRoundActive) return;
+
+    room.users[socket.id].gaveUp = true;
+    setRoom(roomCode, room);
+
+    io.to(roomCode).emit('updateRoom', exportRoom(room));
+    io.to(roomCode).emit('chatMSG', {
+      username: 'Bot',
+      emoji: '🤖',
+      message: `${room.users[socket.id].username} gave up.`,
+    });
+
+    // End round if all players gave up
+    const allGaveUp = Object.values(room.users).every((u) => u.gaveUp);
+    if (allGaveUp) {
+      room.isRoundActive = false;
+      room.round += 1;
+      const [start, target] = randomPages();
+      room.start_page = start;
+      room.target_page = target;
+      // Clear gaveUp flags for next round
+      for (const u of Object.values(room.users)) u.gaveUp = false;
+      setRoom(roomCode, room);
+      io.to(roomCode).emit('endRound', { username: null, allGaveUp: true });
     }
   });
 
