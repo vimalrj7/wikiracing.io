@@ -12,25 +12,15 @@ function NewGame({ setUserName, setRoomCode }) {
   const onSubmit = (data) => {
     setUserName(data.userName);
 
-    //generate a new, unique room code and go to new room
-    // const requestOptions = {
-    //   headers: {
-    //     'Access-Control-Allow-Origin' : '*',
-    //     'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-    //     }
-    // };
-    fetch(backend_url + "/validation_data")
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        let room = Math.floor(1000 + Math.random() * 9000);
-        while (room in Object.keys(data)) {
-          room = Math.floor(1000 + Math.random() * 9000);
-        }
-        setRoomCode(String(room))
-        navigate(`/game/${room}`);
-      });
+    async function pickRoom() {
+      const room = Math.floor(1000 + Math.random() * 9000);
+      const res = await fetch(`${backend_url}rooms/${room}/exists`);
+      const { exists } = await res.json();
+      if (exists) return pickRoom();
+      setRoomCode(String(room));
+      navigate(`/game/${room}`);
+    }
+    pickRoom();
 
   };
 

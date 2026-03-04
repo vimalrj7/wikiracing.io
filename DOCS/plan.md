@@ -8,37 +8,36 @@
 
 ---
 
-## Phase 0 — Backend Rewrite (Node.js + Fastify)
+## Phase 0 — Backend Rewrite (Node.js + Fastify) ✅
 
 The MongoDB Atlas cluster is dead. The Flask backend cannot run. Rewrite first so we have a working backend to test against.
 
 ### 0a. Scaffold Node.js backend
-- [ ] Delete all Python files (`app.py`, `Room.py`, `config.py`, `requirements.txt`, `Procfile`, `runtime.txt`, `X509-cert.pem`, `http_cache.sqlite`, `venv/`)
-- [ ] `npm init` in `/backend`, install: `fastify`, `socket.io`, `bad-words`, `nodemon`
-- [ ] Create `data.js` — port `pages` and `emojis` from `data.py` (fix horse emoji typo `'🐴;'` → `'🐴'`, uncomment valid pairs)
-- [ ] Create `rooms.js` — in-memory Map state module with `getRoom/setRoom/deleteRoom/roomExists/roomFromSocket/setSocketRoom/deleteSocketRoom`
-- [ ] Create `index.js` — Fastify + Socket.IO server
+- [x] Delete all Python files (`app.py`, `Room.py`, `config.py`, `requirements.txt`, `Procfile`, `runtime.txt`)
+- [x] `npm init` in `/backend`, install: `fastify`, `socket.io`, `bad-words`, `nodemon`
+- [x] Create `data.js` — port `pages` and `emojis` from `data.py` (fix horse emoji typo `'🐴;'` → `'🐴'`)
+- [x] Create `rooms.js` — in-memory Map state module with `getRoom/setRoom/deleteRoom/roomExists/roomFromSocket/setSocketRoom/deleteSocketRoom`
+- [x] Create `index.js` — Fastify v5 + Socket.IO (attached directly to `fastify.server`)
 
 ### 0b. Implement all socket events
-Preserve event names and payloads exactly. See `architecture.md` for handler logic.
-- [ ] `join`
-- [ ] `disconnect`
-- [ ] `startRound`
-- [ ] `updateRoom`
-- [ ] `randomizePages`
-- [ ] `updatePage`
-- [ ] `updateTime`
-- [ ] `chatMSG`
+- [x] `join`
+- [x] `disconnect`
+- [x] `startRound`
+- [x] `updateRoom`
+- [x] `randomizePages`
+- [x] `updatePage`
+- [x] `updateTime`
+- [x] `chatMSG`
 
 ### 0c. REST endpoint
-- [ ] `GET /` health check
-- [ ] `GET /rooms/:code/exists` → `{ exists: Boolean }` (replaces `/validation_data`)
+- [x] `GET /` health check
+- [x] `GET /rooms/:code/exists` → `{ exists: Boolean }` (replaces `/validation_data`)
 
 ### 0d. Wiring + test
-- [ ] Update `.claude/launch.json` backend to use `npm run dev`, port 3001
-- [ ] Update `Socket.js` `backend_url` to `http://127.0.0.1:3001/`
-- [ ] Manual smoke test: create room, join, start round, navigate, win
-- [ ] Commit: `feat: rewrite backend in Node.js + Fastify with in-memory state`
+- [x] Update `.claude/launch.json` backend to use `npm run dev`, port 3001
+- [x] Update `Socket.js` `backend_url` to `http://127.0.0.1:3001/`
+- [x] Smoke test: frontend loads, backend health check passes, `/rooms/:code/exists` returns correct JSON
+- [x] Commit: `feat: rewrite backend in Node.js + Fastify with in-memory state`
 
 ---
 

@@ -8,8 +8,6 @@ import "./LoginPage.css";
 function JoinGame({ setUserName, setRoomCode }) {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const ROOM_LIMIT = 8;
-
   async function onSubmit(data) {
     setUserName(data.userName);
     const roomCode = data.roomCode;
@@ -54,24 +52,10 @@ function JoinGame({ setUserName, setRoomCode }) {
                   message: "Room Code must be a 4 digit number.",
                 },
                 validate: async (roomCode) => {
-                  let valid = fetch(backend_url + "/validation_data")
-                    .then((res) => {
-                      return res.json();
-                    })
-                    .then((data) => {
-                      let error = true;
-                      if (!Object.keys(data).includes(roomCode))
-                        error = "This room does not exist.";
-                      else if (
-                        Object.keys(data[roomCode]["users"]).length >=
-                        ROOM_LIMIT
-                      )
-                        error = "This room is full.";
-                        console.log(error)
-                      return error;
-                    });
-
-                  return valid;
+                  const res = await fetch(`${backend_url}rooms/${roomCode}/exists`);
+                  const { exists } = await res.json();
+                  if (!exists) return "This room does not exist.";
+                  return true;
                 },
               })}
             />
