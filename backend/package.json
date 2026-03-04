@@ -1,0 +1,23 @@
+{
+  "name": "wikiracing-backend",
+  "version": "1.0.0",
+  "description": "wikiracing.io backend — Fastify + Socket.IO",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "bad-words": "^3.0.4",
+    "fastify": "^5.7.4",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
