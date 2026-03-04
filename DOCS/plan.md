@@ -41,21 +41,21 @@ The MongoDB Atlas cluster is dead. The Flask backend cannot run. Rewrite first s
 
 ---
 
-## Phase 1 — Frontend Migration (CRA → Vite)
+## Phase 1 — Frontend Migration (CRA → Vite) ✅
 
 Do this after Phase 0 so the frontend works against the new backend immediately.
 
 ### 1a. Vite migration
-- [ ] Remove `react-scripts` from `package.json`
-- [ ] Install `vite`, `@vitejs/plugin-react`
-- [ ] Add `vite.config.js`
-- [ ] Move `public/index.html` → `index.html`, update script tag
-- [ ] Rename `src/index.js` → `src/index.jsx`
-- [ ] Update `package.json` scripts: `dev` / `build` / `preview`
-- [ ] Update `.claude/launch.json` frontend to port 5173
-- [ ] Update `NewGame.js` + `JoinGame.js` to call `GET /rooms/:code/exists` instead of `/validation_data`
-- [ ] Smoke test all game flows
-- [ ] Commit: `feat: migrate frontend from CRA to Vite`
+- [x] Remove `react-scripts` from `package.json`
+- [x] Install `vite`, `@vitejs/plugin-react`
+- [x] Add `vite.config.js` (clean scaffold + `server.host: true`)
+- [x] Move `public/index.html` → `index.html`, update script tag to `src/index.jsx`
+- [x] Rename all JSX-containing `.js` → `.jsx` (App + all components except Socket.js)
+- [x] Update `package.json` scripts: `dev` / `build` / `preview`
+- [x] Update `.claude/launch.json` frontend to port 5173
+- [x] Update `NewGame.jsx` + `JoinGame.jsx` to call `GET /rooms/:code/exists` instead of `/validation_data`
+- [x] Smoke test: Vite dev server on port 5173, home screen renders, build produces 576 modules in 1.2s
+- [x] Commit: `feat: migrate frontend from CRA to Vite`
 
 ---
 
