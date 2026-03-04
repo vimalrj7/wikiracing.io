@@ -7,7 +7,7 @@ function Users({ roomData }) {
 
      const usersHTML = roomData['data'] ? Object.values(roomData['data']['users']).sort((a, b) => b['wins']-a['wins']).map((user) => {
         return (
-        <div className='player'>
+        <div key={user['user_id']} className='player'>
         <div className="emoji"><p><span role="img">{user['emoji']}</span></p></div>
         <div className="text">
         <p className="username">{user['username']}</p>

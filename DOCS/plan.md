@@ -59,15 +59,17 @@ Do this after Phase 0 so the frontend works against the new backend immediately.
 
 ---
 
-## Phase 2 — Bug Fixes
+## Phase 2 — Bug Fixes ✅
 
 Fix the known frontend bugs now that both servers are running.
 
-- [ ] **Popstate listener leak** (`Game.js:33` + `WikiPage.js:55`) — extract handlers to named consts
-- [ ] **Socket reconnect** (`Game.js`) — remove popstate disconnect/reconnect; listen for `socket.on('connect')` and re-emit `join`
-- [ ] **Stale time closure** (`WikiPage.js`) — use `useRef` for `time` in `endRound` handler
-- [ ] **Nested `<a>` crash** (`WikiPage.js`) — guard `node.children[0]` before accessing `.data`
-- [ ] Commit: `fix: frontend socket lifecycle and html-parser crash guards`
+- [x] **Popstate listener leak** (`Game.jsx` + `WikiPage.jsx`) — extract all handlers to named consts; cleanup now removes the correct references
+- [x] **Socket reconnect** (`Game.jsx`) — removed disconnect/reconnect on popstate; `socket.on('connect')` re-emits `join` (server handler is idempotent)
+- [x] **Stale time closure** (`WikiPage.jsx`) — `useRef` mirrors time state; `endRound` reads `timeRef.current` instead of stale closure
+- [x] **Nested `<a>` crash** (`WikiPage.jsx`) — replaced `node.children[0].data` with `domToReact(node.children, options)` for both internal and external link rules
+- [x] **`<html>`/`<head>`/`<body>` nesting warning** (`WikiPage.jsx`) — added parser rules to drop `<head>` and unwrap `<html>`/`<body>` (Wikipedia REST API returns a full document)
+- [x] **Missing `key` props** (`Users.jsx`, `Chat.jsx`) — added `key={user['user_id']}` and `key={index}` to list items
+- [x] Commit: `fix: frontend socket lifecycle and html-parser crash guards`
 
 ---
 

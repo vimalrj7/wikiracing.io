@@ -29,8 +29,8 @@ function Chat({userName, roomCode}) {
         e.target.reset()
       }
 
-      const msgItems = chatMSGS.map((msg) => (
-      <div className='message'><p key={msg['message']}><span role="img">{msg['emoji']}</span> <b>{msg['username']}:</b> {msg['message']}</p></div>
+      const msgItems = chatMSGS.map((msg, index) => (
+      <div key={index} className='message'><p><span role="img">{msg['emoji']}</span> <b>{msg['username']}:</b> {msg['message']}</p></div>
           ));
 
 

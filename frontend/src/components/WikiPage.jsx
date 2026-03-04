@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { socket } from "./Socket";
 import { useParams, Navigate, Link, useNavigate } from "react-router-dom";
-import parse from 'html-react-parser';
+import parse, { domToReact } from 'html-react-parser';
 import Watch from "./Watch";
 import "./WikiPage.css";
 
@@ -10,13 +10,19 @@ function WikiPage({ roomCode }) {
   const [pageData, setPageData] = useState({});
   const [userData, setUserData] = useState({});
   const [time, setTime] = useState(0);
+  const timeRef = useRef(0);   // mirrors time state; avoids stale closure in endRound
   const [winner, setWinner] = useState({});
   const [gameOver, setGameOver] = useState(false);
   let { wikiPage } = useParams();
   const navigate = useNavigate();
 
+  // Keep timeRef in sync so endRound always sees the current elapsed time
   useEffect(() => {
-     async function fetchPageData() {
+    timeRef.current = time;
+  }, [time]);
+
+  useEffect(() => {
+    async function fetchPageData() {
       try {
         const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/html/${wikiPage}`);
         const data = await response.text();
@@ -32,34 +38,32 @@ function WikiPage({ roomCode }) {
 
     fetchPageData();
 
-    socket.on("updatePage", (data) => {
+    const onUpdatePage = (data) => {
       console.log(data);
       setUserData(data);
-    });
+    };
 
-    socket.emit("updatePage", { roomCode, wikiPage });
-
-
-    socket.on("endRound", (winnerData) => {
+    const onEndRound = (winnerData) => {
       console.log("Receving endRound call, emitting time");
       setGameOver(true);
       setWinner(winnerData);
-      socket.emit("updateTime", { roomCode, time: time + 1 });
-      /* setTimeout(() => {
-        navigate(`/game/${roomCode}`);
-      }, 5000);  */
-    });
+      // Use timeRef.current — time state is stale in this closure
+      socket.emit("updateTime", { roomCode, time: timeRef.current });
+    };
 
-    // Don't let users use the back-button
-    // Navigate forward if back button is pressed
-    window.addEventListener("popstate", () => {
-      navigate(1);
-    });
+    // Block back button: navigate forward instead
+    const onPopstate = () => navigate(1);
+
+    socket.on("updatePage", onUpdatePage);
+    socket.emit("updatePage", { roomCode, wikiPage });
+    socket.on("endRound", onEndRound);
+    window.addEventListener("popstate", onPopstate);
 
     return () => {
-      socket.off("updatePage");
-      socket.off("endRound");
-    }
+      window.removeEventListener("popstate", onPopstate);
+      socket.off("updatePage", onUpdatePage);
+      socket.off("endRound", onEndRound);
+    };
 
   }, [wikiPage]);
 
@@ -74,6 +78,43 @@ function WikiPage({ roomCode }) {
     return str_pad_left(minutes,'0',2)+':'+str_pad_left(rem_seconds,'0',2)
   }
 
+  // html-react-parser options — defined here so domToReact can reference options recursively
+  const options = {
+    replace: node => {
+      if (node.type !== "tag") return;
+
+      // Wikipedia sends a full HTML document — drop <head>, unwrap <html>/<body>
+      if (node.name === "head") return <></>;
+      if (node.name === "html" || node.name === "body") {
+        return <>{domToReact(node.children, options)}</>;
+      }
+
+      // Internal wiki links → React Router Link
+      // Use domToReact for children to handle nested elements (fixes <a><span> crash)
+      if (node.name === "a" && node.attribs.title) {
+        return (
+          <Link to={`/wiki/${node.attribs.href?.slice(2)}`}>
+            {domToReact(node.children, options)}
+          </Link>
+        );
+      }
+
+      // External links → strip interactivity, render as plain text span
+      if (node.name === "a" && node.attribs.class === "external text") {
+        return <span>{domToReact(node.children, options)}</span>;
+      }
+
+      // Clear base href (Wikipedia relative URL anchor)
+      if (node.name === "base") {
+        node.attribs.href = "";
+      }
+
+      // Prefix relative stylesheet hrefs with Wikipedia CDN
+      if (node.name === "link" && node.attribs.rel === "stylesheet") {
+        node.attribs.href = `//en.wikipedia.org/${node.attribs.href}`;
+      }
+    }
+  };
 
   return roomCode === "" ? (
     <Navigate to="/" />
@@ -112,38 +153,7 @@ function WikiPage({ roomCode }) {
               className="mw-content-ltr"
             >
               <div>
-                {/* Add more rules for parsing HTML (remove links to other websites etc.) */}
-                {parse(String(pageData["html"]),
-                {
-                  replace: node => {
-                    if (
-                      node.type === "tag" &&
-                      node.name === "a" &&
-                      node.children[0] &&
-                      node.attribs.title
-                    ) {
-                      return <Link to={`/wiki/${node.attribs.href.slice(2)}`}>{node.children[0].data}</Link>;
-                     } else if (
-                      node.type === "tag" &&
-                      node.name === "base"
-                    ) {
-                      node.attribs.href = "";
-                    } else if (
-                      node.type === "tag" &&
-                      node.name === "link" &&
-                      node.attribs.rel === "stylesheet"
-                    ) {
-                      node.attribs.href = `//en.wikipedia.org/${node.attribs.href}`;
-                    } else if (
-                      node.type === "tag" &&
-                      node.name === "a" &&
-                      node.attribs.class === "external text"
-                    ) {
-                      return <span>{node.children[0].data}</span>;
-                    }
-                   }
-                  }
-                 )}
+                {parse(String(pageData["html"]), options)}
               </div>
             </div>
           </div>

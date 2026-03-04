@@ -14,35 +14,30 @@ function Game({ userName, roomCode }) {
   const admin = roomData["data"] ? roomData["data"]["users"][socket.id]['admin'] : null;
 
   useEffect(() => {
-    //socket.connect();
-    //console.log("Socket connected!")
     socket.emit("join", { userName, roomCode });
     console.log("Joined Room", roomCode);
 
-    socket.on("updateRoom", (data) => {
+    const onUpdateRoom = (data) => {
       console.log("Update Room call", data);
       setRoomData({ ...roomData, data });
-    });
+    };
 
-    socket.on("startRound", (data) => {
+    const onStartRound = (data) => {
       console.log("Received startRound with redirect to", data["startPage"]);
       navigate(`/wiki/${data["startPage"]}`);
-    });
+    };
 
-    //force socket to reconnect when back button is pressed
-    window.addEventListener("popstate", () => {
-        socket.disconnect();
-        socket.connect();
-    });
+    // Re-emit join if socket reconnects (e.g. after a brief network drop)
+    const onConnect = () => socket.emit("join", { userName, roomCode });
+
+    socket.on("updateRoom", onUpdateRoom);
+    socket.on("startRound", onStartRound);
+    socket.on("connect", onConnect);
 
     return () => {
-      // Remove the event listener when the component is unmounted
-      window.removeEventListener("popstate", () => {
-        socket.disconnect();
-        socket.connect();
-      });
-      socket.off("updateRoom");
-      socket.off("startRound");
+      socket.off("updateRoom", onUpdateRoom);
+      socket.off("startRound", onStartRound);
+      socket.off("connect", onConnect);
     };
   }, []);
 
