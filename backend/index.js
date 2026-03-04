@@ -210,6 +210,27 @@ io.on('connection', (socket) => {
   });
 
   // --------------------------------------------------------------------
+  // setPages — admin picks custom start/target pages
+  // --------------------------------------------------------------------
+  socket.on('setPages', (data) => {
+    const roomCode = parseInt(data?.roomCode, 10);
+    const room = getRoom(roomCode);
+    if (!room || !room.users[socket.id]) return;
+    if (!room.users[socket.id].admin) return;  // admin only
+    if (room.isRoundActive) return;             // not during a round
+
+    if (typeof data.startPage === 'string' && data.startPage.trim()) {
+      room.start_page = data.startPage.trim();
+    }
+    if (typeof data.targetPage === 'string' && data.targetPage.trim()) {
+      room.target_page = data.targetPage.trim();
+    }
+    setRoom(roomCode, room);
+
+    io.to(roomCode).emit('updateRoom', exportRoom(room));
+  });
+
+  // --------------------------------------------------------------------
   // randomizePages
   // --------------------------------------------------------------------
   socket.on('randomizePages', (data) => {
