@@ -1,68 +1,139 @@
-.wiki-timer, .target-container {
-    position: fixed;
+/* ════════════════════════════════════════════════════════════════
+   WikiPage — white background page + sticky game bar
+   ════════════════════════════════════════════════════════════════ */
+
+/* Override the global body cyan — the wiki page is always white */
+.wiki-page {
+    background: #fff;
+    min-height: 100vh;
+}
+
+/* So in-page anchor links land below the sticky bar */
+html:has(.wiki-page) {
+    scroll-padding-top: 52px;
+}
+
+/* ── Sticky game bar ─────────────────────────────────────────────
+   Matches the lobby header colour (#9575cd purple).              */
+.game-bar {
+    position: sticky;
+    top: 0;
     z-index: 100;
-    top: 8px;
-    background-color: rgba(0, 0, 0, 0.75);
+    background: #9575cd;
+    border-bottom: 2px solid #7b5ea7;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    height: 48px;
+    gap: 12px;
+    font-family: 'Roboto Mono', monospace;
     color: #fff;
-    text-align: center;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    backdrop-filter: blur(4px);
     user-select: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
 }
 
-.stats-container {
-    /* anchor for the fixed children */
+.game-bar--dev {
+    background: #455a64; /* dark slate for dev mode */
+    border-bottom-color: #263238;
 }
 
-.wiki-timer {
-    right: 8px;
+/* Left zone */
+.game-bar-left {
+    flex: 0 0 auto;
+    min-width: 90px;
 }
 
-.target-container {
-    right: 80px;
+/* Center zone — target page, takes remaining space */
+.game-bar-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    line-height: 1.2;
 }
 
-.wiki-timer:hover, .target-container:hover {
-    background-color: rgba(0, 0, 0, 0.9);
+.game-bar-label {
+    font-size: 0.6em;
+    letter-spacing: 0.18em;
+    opacity: 0.75;
+    text-transform: uppercase;
 }
 
-.give-up-btn {
-    position: fixed;
-    z-index: 1;
-    top: 5px;
-    left: 5px;
-    background-color: rgba(0, 0, 0, 0.5);
+.game-bar-target {
+    font-size: 0.9em;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Right zone — players + timer */
+.game-bar-right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Compact player chip: emoji + click count */
+.game-bar-player {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 20px;
+    padding: 2px 7px;
+    font-size: 0.8em;
+}
+
+.game-bar-player-emoji {
+    font-size: 1.1em;
+    line-height: 1;
+}
+
+.game-bar-player-clicks {
+    font-weight: 700;
+    color: #ffd54f;
+}
+
+/* Timer */
+.game-bar-timer {
+    font-size: 0.95em;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    padding: 3px 8px;
+}
+
+/* Give up button */
+.game-bar-give-up {
+    background: rgba(0,0,0,0.2);
     color: #fff;
-    border: none;
+    border: 1px solid rgba(255,255,255,0.3);
     border-radius: 6px;
     padding: 4px 10px;
-    font-size: 12px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.75em;
     cursor: pointer;
-    opacity: 0.35;
-    transition: opacity 0.2s, background 0.2s;
-    margin: 5px;
+    transition: background 0.15s;
+    white-space: nowrap;
 }
 
-.give-up-btn:hover:not(:disabled) {
-    opacity: 0.85;
-    background-color: rgba(183, 28, 28, 0.8);
+.game-bar-give-up:hover:not(:disabled) {
+    background: rgba(183,28,28,0.7);
+    border-color: transparent;
 }
 
-.give-up-btn--done {
-    opacity: 0.25;
+.game-bar-give-up:disabled,
+.game-bar-give-up--done {
+    opacity: 0.45;
     cursor: default;
 }
 
-.wiki-loading {
-    padding: 3rem;
-    text-align: center;
-    color: #54595d;
-    font-style: italic;
-}
-
+/* Dev preview badge */
 .wiki-dev-badge {
     display: inline-block;
     background: #e84040;
@@ -72,16 +143,20 @@
     padding: 2px 8px;
     border-radius: 4px;
     letter-spacing: 0.05em;
+    font-family: 'Roboto Mono', monospace;
 }
 
+
+/* ── Article wrapper ─────────────────────────────────────────────
+   Narrow Wikipedia-style column, centred.                        */
 .wiki-article-wrapper {
     max-width: 960px;
     margin: 0 auto;
-    padding: 16px 24px 60px;
+    padding: 20px 24px 80px;
+    background: #fff;
 }
 
-/* Reset font inside article to Wikipedia's sans-serif stack,
-   overriding the global Roboto Mono applied by App.css */
+/* Reset font inside article — override global Roboto Mono */
 .wiki-article-wrapper,
 .wiki-article-wrapper * {
     font-family: -apple-system, BlinkMacSystemFont, "Linux Libertine",
@@ -97,9 +172,112 @@
     font-family: "Courier New", Courier, monospace;
 }
 
-/* ── Wikipedia article content styles ──────────────────────────────────────
-   The Vector skin CSS covers chrome; article content styles (infobox, toc,
-   tables) come from MediaWiki:Common.css which we replicate here.         */
+.wiki-loading {
+    padding: 4rem;
+    text-align: center;
+    color: #54595d;
+    font-style: italic;
+    font-family: -apple-system, sans-serif;
+}
+
+/* ── Our structural wrappers (avoid Wikipedia CDN grid/flex conflicts) ── */
+.wiki-article-body {
+    display: block;
+}
+
+.wiki-article-title {
+    font-family: "Linux Libertine", "Georgia", "Times", serif;
+    font-size: 2em;
+    font-weight: normal;
+    border-bottom: 1px solid #a2a9b1;
+    padding-bottom: 3px;
+    margin: 0 0 0.3em;
+    color: #202122;
+}
+
+.wiki-description {
+    display: block;
+    margin: 0 0 0.4em;
+    color: #54595d;
+    font-size: 0.875em;
+}
+
+.wiki-from-line {
+    display: block;
+    color: #54595d;
+    font-size: 0.8em;
+    margin-bottom: 0.8em;
+    border-bottom: 1px solid #a2a9b1;
+    padding-bottom: 0.4em;
+}
+
+/* Force block on the parser output — Vector CDN may set display:grid
+   or float elements in its own layout context                       */
+.wiki-article-wrapper .mw-content-ltr.mw-parser-output {
+    display: block !important;
+    width: 100% !important;
+    float: none !important;
+    clear: both;
+}
+
+
+/* ── Table of Contents ──────────────────────────────────────────
+   Built from parse API sections; styled to match real Wikipedia   */
+.wiki-toc {
+    display: table;
+    background: #f8f9fa;
+    border: 1px solid #a2a9b1;
+    padding: 0.6em 1.2em 0.8em;
+    margin: 0.8em 0 1.2em;
+    font-size: 0.92em;
+    min-width: 200px;
+    max-width: 400px;
+}
+
+.wiki-toc-title {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 0.4em;
+    font-size: 1em;
+}
+
+.wiki-toc-list {
+    margin: 0;
+    padding-left: 1em;
+    list-style: none;
+}
+
+.wiki-toc-item {
+    margin: 0.2em 0;
+    line-height: 1.4;
+}
+
+.wiki-toc-l2 {
+    padding-left: 1.4em;
+    font-size: 0.92em;
+}
+
+.wiki-toc-item a {
+    color: #0645ad;
+    text-decoration: none;
+    display: flex;
+    gap: 0.35em;
+    align-items: baseline;
+}
+
+.wiki-toc-item a:hover {
+    text-decoration: underline;
+}
+
+.wiki-toc-num {
+    color: #54595d;
+    flex-shrink: 0;
+    min-width: 1.6em;
+}
+
+
+/* ── Wikipedia article content styles ───────────────────────────
+   MediaWiki:Common.css rules not covered by Vector skin CDN      */
 
 /* Infobox */
 .wiki-article-wrapper .infobox {
@@ -137,18 +315,30 @@
     margin: 0 auto;
 }
 
-/* Table of contents */
-.wiki-article-wrapper .toc {
-    display: table;
-    padding: 0.5em 0.8em;
+/* Table of contents — force visible, hide the toggle checkbox trick */
+.wiki-article-wrapper .toc,
+.wiki-article-wrapper #toc {
+    display: table !important;
+    padding: 0.5em 1em;
     background: #f8f9fa;
     border: 1px solid #a2a9b1;
     font-size: 95%;
-    margin-bottom: 1em;
+    margin: 0.5em 0 1em;
+    min-width: 200px;
 }
-.wiki-article-wrapper .toctitle {
+.wiki-article-wrapper .toctitle,
+.wiki-article-wrapper .toc h2 {
     text-align: center;
     font-weight: bold;
+    font-size: 1em !important;
+    border: none !important;
+    margin: 0.2em 0 0.4em !important;
+}
+/* Hide the show/hide toggle button Wikipedia adds */
+.wiki-article-wrapper .toctogglecheckbox,
+.wiki-article-wrapper .toctogglespan,
+.wiki-article-wrapper .toc .toctoggle {
+    display: none !important;
 }
 .wiki-article-wrapper .tocnumber {
     margin-right: 0.4em;
@@ -160,7 +350,14 @@
     padding-left: 1.2em;
 }
 .wiki-article-wrapper .toc li {
-    margin: 0.15em 0;
+    margin: 0.18em 0;
+}
+.wiki-article-wrapper .toc a {
+    color: #0645ad;
+    text-decoration: none;
+}
+.wiki-article-wrapper .toc a:hover {
+    text-decoration: underline;
 }
 
 /* Wikitables */
@@ -212,7 +409,7 @@
     font-size: 85%;
 }
 
-/* Hatnotes (disambiguation notices) */
+/* Hatnotes */
 .wiki-article-wrapper .hatnote {
     font-style: italic;
     padding: 0.3em 1em;
@@ -232,119 +429,58 @@
     margin: 1em 0 0.3em;
 }
 
-/* Clear floats after sections */
+/* Clear floats */
 .wiki-article-wrapper .mw-parser-output::after {
     content: "";
     display: table;
     clear: both;
 }
 
+
+/* ── Winner overlay ──────────────────────────────────────────────*/
 .winner-overlay {
     position: fixed;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(255, 255, 255, 0.75);
-    z-index: 2;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(4px);
+    z-index: 200;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    animation: fadein 1s ease;
-}
-
-.background {
-    background-color: white;
-}
-
-/* Live race scoreboard — fixed left side during a round */
-.race-scoreboard {
-    position: fixed;
-    top: 50px;
-    left: 5px;
-    z-index: 10;
-    background: rgba(0, 0, 0, 0.75);
-    color: white;
-    border-radius: 8px;
-    padding: 6px 8px;
-    min-width: 180px;
-    max-width: 220px;
-    font-size: 12px;
-    opacity: 0.5;
-    transition: opacity 0.2s;
-}
-
-.race-scoreboard:hover {
-    opacity: 1;
-}
-
-.race-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.15);
-}
-
-.race-row:last-child {
-    border-bottom: none;
-}
-
-.race-emoji {
-    font-size: 16px;
-    flex-shrink: 0;
-}
-
-.race-page {
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: #ddd;
-}
-
-.race-clicks {
-    font-weight: bold;
-    flex-shrink: 0;
-    color: #ffd54f;
+    animation: fadein 0.6s ease;
 }
 
 @keyframes fadein {
-    from {opacity: 0;}
-    to {opacity: 1;}
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
 }
 
-.winner-overlay h1 {
+.winner-overlay h1.winner-name {
     color: #424242;
     font-weight: bold;
-    font-size: 5em;
+    font-size: 3.5em;
     border-bottom: none;
     margin-bottom: 5px;
+    animation: bop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite alternate;
+}
+
+@keyframes bop {
+    0%   { transform: scale(0.95); }
+    100% { transform: scale(1); }
 }
 
 .winner-time {
-    font-size: x-large;
-    text-align: right;
-}
-
-.winner-clicks {
-    font-size: x-large;
-    text-align: right;
-
-}
-
-.winner-overlay b {
-    margin-right: 10px;
+    font-size: large;
+    text-align: center;
+    margin-bottom: 12px;
 }
 
 .overlay-leaderboard {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin: 12px 0;
+    margin: 10px 0;
     min-width: 280px;
 }
 
@@ -352,11 +488,12 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    background: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.8);
     border: 1px solid #ccc;
     border-radius: 6px;
     padding: 6px 12px;
     font-size: 0.95em;
+    font-family: -apple-system, sans-serif;
 }
 
 .overlay-row--winner {
@@ -365,19 +502,9 @@
     font-weight: bold;
 }
 
-.overlay-emoji {
-    font-size: 1.3em;
-}
-
-.overlay-name {
-    flex: 1;
-    color: #424242;
-}
-
-.overlay-stat {
-    color: #555;
-    font-size: 0.85em;
-}
+.overlay-emoji { font-size: 1.3em; }
+.overlay-name  { flex: 1; color: #424242; }
+.overlay-stat  { color: #555; font-size: 0.85em; }
 
 .overlay-btn {
     background-color: transparent;
@@ -386,33 +513,14 @@
     letter-spacing: 0.2em;
     cursor: pointer;
     font-weight: bold;
-    padding: 1rem;
-    transition: all 0.3s;
+    font-family: 'Roboto Mono', monospace;
+    padding: 0.9rem 1.6rem;
+    transition: all 0.25s;
     border-radius: 10px;
-    margin: 15px 10px;
+    margin: 14px 10px;
     outline: none;
 }
-
 .overlay-btn:hover {
     background: #424242;
-    transition: all 0.3s;
-    border-radius: 10px;
     color: white;
-    opacity: 85%;
-  }
-
-
- .winner-overlay h1 {
-    animation: bop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards infinite
-      alternate;
-}
-
-@keyframes bop {
-  0% {
-    transform: scale(0.9);
-  }
-  50%,
-  100% {
-    transform: scale(1);
-  }
 }

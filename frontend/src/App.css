@@ -8,6 +8,11 @@ body {
   background-color: #c4f5fc;
 }
 
+/* Wiki/preview routes use a fully white background */
+body:has(.wiki-page) {
+  background-color: #fff;
+}
+
 .main-button {
   border: 3px solid #424242;
   background: #ff99b3;
