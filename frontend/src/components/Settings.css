@@ -3,6 +3,8 @@
   padding: 5px;
   border-radius: 5px;
   background-color: #e57373;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .options-container h2 {
@@ -23,45 +25,40 @@
   color: #424242;
   text-align: center;
   letter-spacing: 3px;
-  font-size: -large;
-  margin-bottom: 5px;
+  font-size: large;
+  margin-bottom: 8px;
   padding: 5px;
 }
 
-.title-row {
+/* ── two-column search grid ────────────────────────────────────── */
+.pages-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  place-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  /* ensure dropdowns can overflow container */
+  overflow: visible;
 }
 
-.title-row h3 {
-  margin: 10px 5px;
+.page-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* allow dropdown to escape */
+  overflow: visible;
+}
+
+.page-label {
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 3px;
   color: #424242;
-}
-
-.page-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  place-items: center;
-}
-
-.page-container {
-  border: solid #424242;
-  margin: 0 5px;
-  padding: 0 15px;
-  border-radius: 5px;
-  height: 100%;
-  background-color: white;
+  margin: 0;
   text-align: center;
-  display: grid;
-  place-items: center;
 }
 
-.page-container h3 {
-  color: #424242;
-  letter-spacing: 1px;
-}
-
+/* ── randomize button ──────────────────────────────────────────── */
 .random-btn-container {
   display: flex;
   align-items: center;
