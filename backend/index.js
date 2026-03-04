@@ -92,6 +92,8 @@ io.on('connection', (socket) => {
         target_page: target,
         round: 1,
         emojis: sample(emojis, ROOM_LIMIT),
+        isRoundActive: false,
+        roundStartedAt: 0,
       };
       setRoom(roomCode, room);
     }
@@ -106,7 +108,7 @@ io.on('connection', (socket) => {
 
     // Room full
     if (Object.keys(room.users).length >= ROOM_LIMIT) {
-      socket.emit('error', { message: 'Room is full.' });
+      socket.emit('gameError', { message: 'Room is full.' });
       return;
     }
 
@@ -182,9 +184,13 @@ io.on('connection', (socket) => {
     const room = getRoom(roomCode);
     if (!room) return;
 
+    room.isRoundActive = true;
+    room.roundStartedAt = Date.now();
+
     for (const userId of Object.keys(room.users)) {
-      room.users[userId].clicks = -1;
+      room.users[userId].clicks = -1;  // -1 so start-page updatePage brings it to 0
       room.users[userId].current_page = room.start_page;
+      room.users[userId].time = 0;
     }
     setRoom(roomCode, room);
 
@@ -220,7 +226,8 @@ io.on('connection', (socket) => {
 
   // --------------------------------------------------------------------
   // updatePage — fires on every Wikipedia page navigation.
-  // clicks starts at -1 so the first load (start page) brings it to 0.
+  // clicks starts at -1 so the start-page load brings it to 0.
+  // Guard on isRoundActive prevents lobby clicks from counting.
   // --------------------------------------------------------------------
   socket.on('updatePage', (data) => {
     const roomCode = parseInt(data?.roomCode, 10);
@@ -228,20 +235,31 @@ io.on('connection', (socket) => {
     const room = getRoom(roomCode);
     if (!room || !room.users[socket.id]) return;
 
+    // Always confirm target to the player (needed so they see the target on load)
+    socket.emit('updatePage', { target: room.target_page });
+
+    // Only count clicks and check win when a round is active
+    if (!room.isRoundActive) return;
+
     room.users[socket.id].clicks += 1;
     room.users[socket.id].current_page = page;
     setRoom(roomCode, room);
 
-    // Confirm target to the navigating player only (not broadcast)
-    socket.emit('updatePage', { target: room.target_page });
-
     // Win check (case-insensitive)
     if (page.toLowerCase() === room.target_page.toLowerCase()) {
-      // Snapshot before incrementing wins — matches Flask behavior
-      const winnerSnapshot = { ...room.users[socket.id] };
+      // Compute server-side elapsed time
+      const elapsed = Math.floor((Date.now() - room.roundStartedAt) / 1000);
+
+      // Snapshot before incrementing wins — same order as original Flask code
+      const winnerSnapshot = {
+        ...room.users[socket.id],
+        time: elapsed,
+      };
 
       room.users[socket.id].wins += 1;
+      room.users[socket.id].time = elapsed;
       room.round += 1;
+      room.isRoundActive = false;
 
       // Pre-randomize pages for next round
       const [start, target] = randomPages();

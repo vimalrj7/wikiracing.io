@@ -73,27 +73,67 @@ Fix the known frontend bugs now that both servers are running.
 
 ---
 
-## Phase 3 — UX Polish
+## Phase 3 — Architecture & Performance Fixes ✅
 
-- [ ] **Loading states** — spinner while Wikipedia page fetches; "joining..." skeleton in Game.js lobby
-- [ ] **Disable PLAY after click** — prevent double-starts
-- [ ] **Live race progress** — show `current_page` and `clicks` per player in Users leaderboard during round
+### 3a. Wikipedia rendering (on feature/wikipedia-rendering-overhaul branch)
+- [x] Switch to MediaWiki Action API (`action=parse`) — clean JSON body, no html/head/body stripping
+- [x] Parallel fetch: parse API + `rest_v1/page/summary` for thumbnail + description
+- [x] `useMemo` for parser options + parsed content (no re-parse on timer ticks)
+- [x] `AbortController` on fetch — cancels on wikiPage change
+- [x] Fix `Watch.jsx` timer — `[gameOver]` dep + functional updater
+- [x] Wikipedia Vector CSS in `index.html`; `MediaWiki:Common.css` rules in `WikiPage.css`
+- [x] Dev preview route `/preview/:wikiPage` (no room guard, links stay in `/preview/`)
+- [x] Improved link interception: `/wiki/` prefix, namespace filtering, anchor strip
+
+### 3b. Socket lifecycle ✅
+- [x] **Lazy connect** — `Socket.js` uses `autoConnect: false`; `Game.jsx` calls `socket.connect()` on mount only when socket isn't already connected
+- [x] **`gameError` event handler** — `Game.jsx` listens for `gameError` (renamed from reserved `error` event); displays inline error banner
+
+### 3c. Room state improvements ✅
+- [x] **`isRoundActive` boolean** — set `true` on `startRound`, `false` on `endRound`; `updatePage` still sends target back to player for display, but only counts clicks/checks win when active
+- [x] **`roundStartedAt` timestamp** — `Date.now()` recorded on `startRound`; elapsed time computed server-side on win: `Math.floor((Date.now() - roundStartedAt) / 1000)`
+- [x] **Server-computed time** — `endRound` payload includes `time: elapsed`; client uses `winner.time` in overlay; `updateTime` client emit removed
+- [x] Commit: `feat: isRoundActive, server-side time, lazy socket connect, gameError event`
+
+### 3d. Server error events ✅ (basic)
+- [x] **Rename `error` → `gameError`** — Socket.IO reserves `error`; renamed in both backend and frontend
+- [x] **Error banner in `Game.jsx`** — inline red banner for room-full and similar errors
+
+---
+
+## Phase 4 — UX Polish
+
+- [ ] **Loading states** — spinner while Wikipedia page fetches; "joining..." skeleton in Game lobby
+- [ ] **Disable PLAY after click** — prevent double-starts; re-enable on `updateRoom`
+- [ ] **Live race progress** — show `current_page` and `clicks` per player in leaderboard during round (needs `isRoundActive` from 3c ✅)
 - [ ] **Room code copy button** — one-click copy to clipboard
 - [ ] **Winner overlay** — show full leaderboard (all players' clicks + time), auto-return countdown
 - [ ] **Give Up button** — emit `giveUp` event; backend marks DNF; if all give up, end round
-- [ ] **Error toasts** — surface backend errors (room full, room not found) via MUI Snackbar
-- [ ] **Custom MUI theme** — brand colors, dark mode toggle, better typography
+- [ ] **Error toasts** — upgrade `gameError` banner to MUI Snackbar in `NewGame.jsx` / `JoinGame.jsx` / `Game.jsx`
 - [ ] Commit per feature area
 
 ---
 
-## Phase 4 — Features
+## Phase 5 — Custom Page Selection
 
-- [ ] **Ranked scoring** — 3/2/1 pts for 1st/2nd/3rd finishers; separate `score` field from `wins`
-- [ ] **Path replay** — track click history array per user; show on round-end screen
-- [ ] **Custom page selection** — admin can type custom Wikipedia pages; validate via summary API
-- [ ] **Win detection via canonical titles** — hit `https://en.wikipedia.org/api/rest_v1/page/summary/{page}` to resolve redirects before comparing to target
-- [ ] **Mobile layout** — responsive CSS for the game grid
+- [ ] **Page search UI** — admin searches via Wikipedia OpenSearch API; random button still present
+- [ ] **Validate via summary API** — resolve redirects, confirm page exists
+- [ ] **Win detection via canonical titles** — compare against canonical from summary API
+- [ ] **Update `randomizePages`** — accept explicit `{ startPage, targetPage }` payload
+
+---
+
+## Phase 6 — Wikipedia Rendering Overhaul (on feature/wikipedia-rendering-overhaul branch)
+
+See that branch for details.
+
+---
+
+## Phase 7 — UI Redesign
+
+- [ ] Retro Wikipedia font-inspired UI, mobile-first
+- [ ] Responsive grid (sidebar collapses on small screens)
+- [ ] Dark mode toggle
 
 ---
 

@@ -9,35 +9,41 @@ import logo from '../assets/logo.png'
 
 function Game({ userName, roomCode }) {
   const [roomData, setRoomData] = useState({});
+  const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
 
-  const admin = roomData["data"] ? roomData["data"]["users"][socket.id]['admin'] : null;
+  const admin = roomData["data"] ? roomData["data"]["users"][socket.id]?.['admin'] : null;
 
   useEffect(() => {
+    // Connect lazily — socket has autoConnect:false so it isn't open until here
+    if (!socket.connected) socket.connect();
+
     socket.emit("join", { userName, roomCode });
-    console.log("Joined Room", roomCode);
 
     const onUpdateRoom = (data) => {
-      console.log("Update Room call", data);
       setRoomData({ ...roomData, data });
     };
 
     const onStartRound = (data) => {
-      console.log("Received startRound with redirect to", data["startPage"]);
       navigate(`/wiki/${data["startPage"]}`);
     };
 
-    // Re-emit join if socket reconnects (e.g. after a brief network drop)
+    // Re-emit join on reconnect (e.g. brief network drop)
     const onConnect = () => socket.emit("join", { userName, roomCode });
+
+    // Server-side errors (room full, invalid room, etc.)
+    const onGameError = ({ message }) => setErrorMsg(message);
 
     socket.on("updateRoom", onUpdateRoom);
     socket.on("startRound", onStartRound);
     socket.on("connect", onConnect);
+    socket.on("gameError", onGameError);
 
     return () => {
       socket.off("updateRoom", onUpdateRoom);
       socket.off("startRound", onStartRound);
       socket.off("connect", onConnect);
+      socket.off("gameError", onGameError);
     };
   }, []);
 
@@ -50,6 +56,11 @@ function Game({ userName, roomCode }) {
     <Navigate to="/" />
   ) : (
     <div className="game-wrapper">
+      {errorMsg && (
+        <div className="game-error-banner">
+          ⚠️ {errorMsg}
+        </div>
+      )}
       <div className="grid-container grid-header">
         <div className="logo">
           <Link to="/"><img className='logo-img' src={logo}/></Link>

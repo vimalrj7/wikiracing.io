@@ -26,6 +26,9 @@ function App() {
 
           <Route path="/wiki/:wikiPage" element={<WikiPage roomCode={roomCode} />} />
 
+          {/* Dev preview — render any Wikipedia article without joining a game */}
+          <Route path="/preview/:wikiPage" element={<WikiPage roomCode="" devMode={true} />} />
+
           <Route path="/" element={<Index />} />
         </Routes>
       </div>

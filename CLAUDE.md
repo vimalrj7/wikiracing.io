@@ -6,67 +6,79 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 wikiracing.io is a multiplayer browser game where players race to reach a target Wikipedia page from a starting page using only internal Wikipedia links.
 
-- **Full plan & roadmap**: `memory/plan.md`
-- **Architecture reference**: `memory/architecture.md`
+- **Full plan & roadmap**: `DOCS/plan.md`
+- **Architecture reference**: `DOCS/architecture.md`
 
-## Target Stack (migration in progress)
+## Stack (migration complete)
 
-| Layer | Current | Target |
-|-------|---------|--------|
-| Backend | Python Flask + python-socketio | Node.js + Fastify + socket.io |
-| State | MongoDB Atlas (dead cluster) | In-memory Map via `rooms.js` |
-| Frontend | Create React App | Vite + React |
-| Backend deploy | Heroku + Gunicorn | Railway |
-| Frontend deploy | Netlify | Vercel or Netlify |
+| Layer | Status |
+|-------|--------|
+| Backend | Node.js + Fastify v5 + Socket.IO v4, in-memory Map state |
+| Frontend | Vite 5 + React 18 + React Router v6 |
+| Backend deploy | Railway (`process.env.PORT`) |
+| Frontend deploy | Vercel or Netlify (`VITE_BACKEND_URL`) |
 
 ## Commands
 
 ### Frontend (`/frontend`)
 ```bash
-npm run dev      # Vite dev server on port 5173 (after migration)
+npm run dev      # Vite dev server on port 5173
 npm run build    # Production build to /dist
 npm run preview  # Preview production build locally
-npm test         # Run Jest tests (React Testing Library)
 ```
-> Currently still CRA — `npm start` until Vite migration is done.
 
 ### Backend (`/backend`)
 ```bash
-# After Node.js migration:
 npm install
-npm run dev      # nodemon on port 3001
-npm start        # node index.js (production)
-
-# Current Flask (broken — MongoDB cluster is dead):
-backend/venv/bin/python app.py
+npm run dev   # nodemon on port 3001
+npm start     # node index.js (production)
 ```
 
 ## Dev Server (Claude Preview)
 Configs are in `.claude/launch.json`. Start with:
 ```
 preview_start("frontend")
-preview_start("backend")   # after Node migration
+preview_start("backend")
 ```
 
 ## Repo Layout
 ```
-/frontend          React app (CRA → Vite migration pending)
-  /src/components  All game UI components — do not restructure
-  index.html       Move here (from /public) during Vite migration
-/backend           Server (Flask → Node.js rewrite pending)
-  rooms.js         [NEW] State module — getRoom/setRoom/deleteRoom
-  data.js          [NEW] Page pairs + emoji pool (ported from data.py)
-  index.js         [NEW] Fastify + Socket.IO server
-/memory            Detailed docs
-  plan.md          Phased migration + feature roadmap
-  architecture.md  Architecture decisions, socket event map, migration notes
+/frontend
+  index.html           Root HTML (not in /public)
+  vite.config.js
+  /src
+    index.jsx
+    App.jsx
+    /components        All game UI — do not restructure
+      Socket.js        Singleton socket — connects on import (planned: lazy connect)
+      Game.jsx         Lobby — roomData state, admin controls
+      WikiPage.jsx     Race screen — Wikipedia HTML rendering, timer, win detection
+      Chat.jsx         In-lobby chat
+      Users.jsx        Leaderboard
+      Settings.jsx     Page randomizer, round settings
+      Watch.jsx        Countdown timer
+      NewGame.jsx      Home screen — create room
+      JoinGame.jsx     Home screen — join room
+/backend
+  index.js      Fastify server + all socket event handlers
+  rooms.js      State module — only place that reads/writes room state
+  data.js       Page pairs + emoji pool
+  package.json  "type": "module" (ESM)
+/DOCS
+  plan.md       Phased roadmap
+  architecture.md  Architecture decisions, socket event map, audit findings
 ```
 
-## Key Invariants — Do Not Change
+## Key Invariants — Do Not Change Without Updating DOCS
 - Socket event names: `join`, `disconnect`, `startRound`, `updateRoom`, `randomizePages`, `updatePage`, `updateTime`, `chatMSG`, `endRound`
-- Wikipedia REST API fetch from frontend: `https://en.wikipedia.org/api/rest_v1/page/html/{page}`
-- Link interception logic in `WikiPage.js` — converts `<a title="...">` to React Router `<Link>`
-- Frontend component structure and game flow
+- Frontend component structure and game flow (no restructuring)
+- `rooms.js` is the only place that reads/writes room state
+
+## Things That Will Change (planned)
+- Wikipedia API endpoint: `rest_v1/page/html/{page}` → `rest_v1/page/mobile-sections/{page}` (Phase 3)
+- Socket lifecycle: connects on import → lazy connect in Game.jsx (Phase 3)
+- `updateTime` event: client-push → server-computed via `roundStartedAt` (Phase 3)
 
 ## Git Workflow
-Stage and commit after each logical change. Use descriptive messages.
+- Commit after each logical change with descriptive messages
+- **Always commit doc updates in the same commit as the code changes they describe**
