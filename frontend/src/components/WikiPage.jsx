@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { socket } from "./Socket";
 import { useParams, Navigate, Link, useNavigate } from "react-router-dom";
 import parse, { domToReact } from 'html-react-parser';
@@ -10,16 +10,10 @@ function WikiPage({ roomCode }) {
   const [pageData, setPageData] = useState({});
   const [userData, setUserData] = useState({});
   const [time, setTime] = useState(0);
-  const timeRef = useRef(0);   // mirrors time state; avoids stale closure in endRound
   const [winner, setWinner] = useState({});
   const [gameOver, setGameOver] = useState(false);
   let { wikiPage } = useParams();
   const navigate = useNavigate();
-
-  // Keep timeRef in sync so endRound always sees the current elapsed time
-  useEffect(() => {
-    timeRef.current = time;
-  }, [time]);
 
   useEffect(() => {
     async function fetchPageData() {
@@ -44,11 +38,9 @@ function WikiPage({ roomCode }) {
     };
 
     const onEndRound = (winnerData) => {
-      console.log("Receving endRound call, emitting time");
+      // winnerData.time is server-computed (Date.now() - roundStartedAt)
       setGameOver(true);
       setWinner(winnerData);
-      // Use timeRef.current — time state is stale in this closure
-      socket.emit("updateTime", { roomCode, time: timeRef.current });
     };
 
     // Block back button: navigate forward instead
@@ -123,7 +115,7 @@ function WikiPage({ roomCode }) {
       {gameOver ? (
         <div className="winner-overlay">
           <h1 className="winner-name">&#127942;{winner["username"]} won!</h1>
-          <p className="winner-time"><b>&#128336; Time</b>	{formatTime(time)}</p>
+          <p className="winner-time"><b>&#128336; Time</b>&#9;{formatTime(winner["time"] ?? time)}</p>
           <p className="winner-clicks"><b>&#128433;&#65039; Clicks</b> {winner["clicks"]}</p>
           <Link to={`/game/${roomCode}`}><button className="overlay-btn">CONTINUE</button></Link>
         </div>
