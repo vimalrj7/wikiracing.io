@@ -2,96 +2,84 @@ from flask import Flask, render_template, request
 from flask_socketio import SocketIO, send, join_room, leave_room, emit
 from flask_cors import CORS, cross_origin
 from Room import Room
-from Page import Page
 from better_profanity import profanity
 import requests
 import requests_cache
 
 app = Flask(__name__)
-cors = CORS(app)
+CORS(app,resources={r"/*":{"origins":"*"}})
 
-app.config.from_object('config.ProdConfig')
+app.config.from_object('config.DevConfig')
 
-socketio = SocketIO(app, cors_allowed_origins="*")
-
-rooms = {}
+socketio = SocketIO(app, cors_allowed_origins='*', logger=True, engineio_logger=True)
 
 requests_cache.install_cache()
 
 @app.route('/')
-def hello():
+def hello() -> str:
     return 'This is the backend server for wikiracing.io.'
 
 @app.route('/validation_data')
 @cross_origin()
 def validation():
-    json_data = {}
-
-    for code, room in rooms.items():
-        json_data[code] = room.export()
-
-    return json_data
-
+    #TODO: FIX THIS, THIS SUCKS
+    return Room.get_all_rooms()
 
 @socketio.on('join')
-def on_join(data):
+def on_join(data: dict) -> None:
     username = data['userName']
     room_code = data['roomCode']
-    
+
     #ensure that redirects dont add empty users
     if username:
 
-        if room_code not in rooms:
-            rooms[room_code] = Room(room_code)
-        
-        rooms[room_code].add_user(username, request.sid)
+        room = Room(room_code)
+
+        room.add_user(username, request.sid)
         join_room(room_code)
 
-        room_data = rooms[room_code].export()
+        room_data = room.export()
 
         emit('updateRoom', room_data, broadcast=True, room=room_code)
 
         # Join message
-        msg_item = {'username': 'Bot', 'emoji': '&#129302;', 'message': username+' joined the room.'}
+        msg_item = {'username': 'Bot', 'emoji': '🤖', 'message': f'{username} joined the room.'}
         emit('chatMSG', msg_item, broadcast=True, room=room_code)
 
-
 @socketio.on('disconnect')
-def on_leave():
+def on_leave() -> None:
+    room = Room.room_from_user(request.sid)
 
-    for code, room in rooms.items():
-        if removed := room.delete_user(request.sid):
-            room_code = code
-            leave_room(room_code)
-            if not room.users:
-                del rooms[code]
-            break
-    
-    if room_code in rooms:
-        room_data = rooms[room_code].export()
+    if room is None:
+        return
+
+    deleted_user = room.delete_user(request.sid)
+    room_code = room.room_code
+    leave_room(room_code)
+
+    # only update room if any users are left
+    if Room.exists(room_code):
+        room_data = room.export()
         emit('updateRoom', room_data, broadcast = True, room = room_code)
 
         # Leave message
-        msg_item = {'username': 'Bot', 'emoji': '&#129302;', 'message': removed.username+' left the room.'}
+        msg_item = {'username': 'Bot', 'emoji': '&#129302;', 'message': f'{deleted_user["username"]} left the room.'}
         emit('chatMSG', msg_item, broadcast=True, room=room_code)
 
-
-
 @socketio.on('startRound')
-def start_game(data):
+def start_game(data: dict) -> None:
     room_code = data['roomCode']
-
-    room = rooms[room_code]
+    room = Room(room_code)
 
     room.start_game()
 
-    room_data = room.export()
     emit('startRound', {'startPage': room.start_page}, broadcast=True, room=room_code)
 
 @socketio.on('updateRoom')
-def update_room(data):
+def update_room(data: dict) -> None:
     room_code = data['roomCode']
-    room = rooms[room_code]
+
+    room = Room(room_code)
 
     room_data = room.export()
 
@@ -99,9 +87,10 @@ def update_room(data):
 
 
 @socketio.on('randomizePages')
-def randomize(data):
+def randomize(data: dict) -> None:
     room_code = data['roomCode']
-    room = rooms[room_code]
+
+    room = Room(room_code)
 
     room.randomize_pages()
 
@@ -110,36 +99,48 @@ def randomize(data):
     emit('updateRoom', room_data, broadcast=True, room=room_code)
 
 @socketio.on('updatePage')
-def get_wikipage(data):
+def udpate_page(data: dict) -> None:
     room_code = data['roomCode']
     page_name = data['wikiPage']
-    room = rooms[room_code]
 
-    page = Page(page_name, rooms[room_code].target_page).export()
-    emit('updatePage', page)
+    room = Room(room_code)
+
+    #page = Page(page_name).export()
+    #page['target'] = room.target_page
+
+    #emit('updatePage', page)
+
+    emit('updatePage', {'target': room.target_page})
+
     winner = room.update_game(request.sid, page_name)
 
-    if winner:
-        emit('endRound', winner.export(), broadcast=True, room=room_code)
+    if winner is not None:
+        emit('endRound', winner, broadcast=True, room=room_code)
 
 @socketio.on('updateTime')
-def update_time(data):
+def update_time(data: dict) -> None:
     time = data['time']
     room_code = data['roomCode']
-    rooms[room_code].users[request.sid].time = time
+
+    room = Room(room_code)
+
+    room.set_user_field(request.sid, 'time', time)
 
 @socketio.on('chatMSG')
-def message(data):
-    message = profanity.censor(data['message'], '&#129324')
+def message(data: dict) -> None:
+    message = profanity.censor(data['message'], '🤬')
     user_name = data['userName']
     room_code = data['roomCode']
-    emoji = rooms[room_code].users[request.sid].emoji
+
+    room = Room(room_code)
+
+    emoji = room.get_user_field(request.sid, 'emoji')
 
     msg_item = {'username': user_name, 'emoji': emoji, 'message': message}
 
     emit('chatMSG', msg_item, broadcast=True, room=room_code)
 
 if __name__ == '__main__':
-    app.run()
+    socketio.run(app, port=5001, debug=True)
 
 

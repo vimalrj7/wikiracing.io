@@ -1,19 +1,20 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { backend_url } from "./Socket";
 import "./LoginPage.css";
 
 function JoinGame({ setUserName, setRoomCode }) {
-  const history = useHistory();
-  const { register, handleSubmit, errors } = useForm();
+  const navigate = useNavigate();
+  const { register, handleSubmit, formState: { errors } } = useForm();
   const ROOM_LIMIT = 8;
 
-  function onSubmit(data) {
+  async function onSubmit(data) {
     setUserName(data.userName);
     const roomCode = data.roomCode;
     setRoomCode(String(roomCode));
-    history.push(`/game/${roomCode}`);
+    navigate(`/game/${roomCode}`);
   }
 
   return (
@@ -29,8 +30,7 @@ function JoinGame({ setUserName, setRoomCode }) {
               className="main-input"
               autoFocus
               placeholder="Username"
-              name="userName"
-              ref={register({
+              {...register("userName", {
                 required: "Username is required.",
                 minLength: {
                   value: 3,
@@ -47,15 +47,14 @@ function JoinGame({ setUserName, setRoomCode }) {
             <input
               className="main-input"
               placeholder="Room Code"
-              name="roomCode"
-              ref={register({
+              {...register("roomCode", {
                 required: "Room Code is required.",
                 pattern: {
                   value: /^\d{4}$/,
                   message: "Room Code must be a 4 digit number.",
                 },
                 validate: async (roomCode) => {
-                  let valid = fetch("https://wikiracing-backend.herokuapp.com/validation_data")
+                  let valid = fetch(backend_url + "/validation_data")
                     .then((res) => {
                       return res.json();
                     })

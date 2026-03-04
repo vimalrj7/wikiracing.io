@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Redirect, useHistory, Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { socket } from "./Socket";
 import Chat from "./Chat";
 import Users from "./Users";
 import Settings from "./Settings";
-import { socket } from "./Socket";
 import "./Game.css";
 import logo from '../assets/logo.png'
 
 function Game({ userName, roomCode }) {
   const [roomData, setRoomData] = useState({});
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const admin = roomData["data"] ? roomData["data"]["users"][socket.id]['admin'] : null;
 
   useEffect(() => {
+    //socket.connect();
+    //console.log("Socket connected!")
     socket.emit("join", { userName, roomCode });
     console.log("Joined Room", roomCode);
 
@@ -23,8 +25,8 @@ function Game({ userName, roomCode }) {
     });
 
     socket.on("startRound", (data) => {
-      console.log("Recived startRound with redirect to", data["startPage"]);
-      history.push(`/wiki/${data["startPage"]}`);
+      console.log("Received startRound with redirect to", data["startPage"]);
+      navigate(`/wiki/${data["startPage"]}`);
     });
 
     //force socket to reconnect when back button is pressed
@@ -32,6 +34,16 @@ function Game({ userName, roomCode }) {
         socket.disconnect();
         socket.connect();
     });
+
+    return () => {
+      // Remove the event listener when the component is unmounted
+      window.removeEventListener("popstate", () => {
+        socket.disconnect();
+        socket.connect();
+      });
+      socket.off("updateRoom");
+      socket.off("startRound");
+    };
   }, []);
 
   function handleStart(e) {
@@ -40,7 +52,7 @@ function Game({ userName, roomCode }) {
   }
 
   return userName === "" ? (
-    <Redirect to="/" />
+    <Navigate to="/" />
   ) : (
     <div className="game-wrapper">
       <div className="grid-container grid-header">
