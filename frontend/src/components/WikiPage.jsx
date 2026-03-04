@@ -1,163 +1,200 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { socket } from "./Socket";
 import { useParams, Navigate, Link, useNavigate } from "react-router-dom";
-import parse, { domToReact } from 'html-react-parser';
+import parse, { domToReact } from "html-react-parser";
 import Watch from "./Watch";
 import "./WikiPage.css";
 
+// Non-article namespaces — links to these become plain spans (not game navigation)
+const SKIP_NAMESPACES = [
+  "File:", "Help:", "Wikipedia:", "Special:", "Template:",
+  "Category:", "Talk:", "Portal:", "User:", "Draft:",
+];
 
-function WikiPage({ roomCode }) {
-  const [pageData, setPageData] = useState({});
+function WikiPage({ roomCode, devMode = false }) {
+  const wikiRoute = devMode ? '/preview' : '/wiki';
+  const [html, setHtml] = useState("");
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState({});
   const [time, setTime] = useState(0);
-  const timeRef = useRef(0);   // mirrors time state; avoids stale closure in endRound
+  const timeRef = useRef(0);
   const [winner, setWinner] = useState({});
   const [gameOver, setGameOver] = useState(false);
-  let { wikiPage } = useParams();
+  const { wikiPage } = useParams();
   const navigate = useNavigate();
 
-  // Keep timeRef in sync so endRound always sees the current elapsed time
+  // Keep timeRef in sync so endRound closure always sees current elapsed time
   useEffect(() => {
     timeRef.current = time;
   }, [time]);
 
-  useEffect(() => {
-    async function fetchPageData() {
-      try {
-        const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/html/${wikiPage}`);
-        const data = await response.text();
-        setPageData({
-          title: wikiPage.replaceAll("_", " "),
-          html: data
-        });
-        window.scrollTo(0, 0);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    fetchPageData();
-
-    const onUpdatePage = (data) => {
-      console.log(data);
-      setUserData(data);
-    };
-
-    const onEndRound = (winnerData) => {
-      console.log("Receving endRound call, emitting time");
-      setGameOver(true);
-      setWinner(winnerData);
-      // Use timeRef.current — time state is stale in this closure
-      socket.emit("updateTime", { roomCode, time: timeRef.current });
-    };
-
-    // Block back button: navigate forward instead
-    const onPopstate = () => navigate(1);
-
-    socket.on("updatePage", onUpdatePage);
-    socket.emit("updatePage", { roomCode, wikiPage });
-    socket.on("endRound", onEndRound);
-    window.addEventListener("popstate", onPopstate);
-
-    return () => {
-      window.removeEventListener("popstate", onPopstate);
-      socket.off("updatePage", onUpdatePage);
-      socket.off("endRound", onEndRound);
-    };
-
-  }, [wikiPage]);
-
-  function formatTime(seconds) {
-    const minutes = Math.floor(seconds/60)
-    const rem_seconds = seconds % 60;
-
-    function str_pad_left(string,pad,length) {
-        return (new Array(length+1).join(pad)+string).slice(-length);
-    }
-
-    return str_pad_left(minutes,'0',2)+':'+str_pad_left(rem_seconds,'0',2)
-  }
-
-  // html-react-parser options — defined here so domToReact can reference options recursively
-  const options = {
-    replace: node => {
+  // Parser options via ref so the replace fn can recurse without stale closure
+  const optionsRef = useRef(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  optionsRef.current = useMemo(() => ({
+    replace(node) {
       if (node.type !== "tag") return;
 
-      // Wikipedia sends a full HTML document — drop <head>, unwrap <html>/<body>
-      if (node.name === "head") return <></>;
-      if (node.name === "html" || node.name === "body") {
-        return <>{domToReact(node.children, options)}</>;
-      }
+      // Internal wiki links (/wiki/Page) → React Router Link
+      if (node.name === "a" && node.attribs.href?.startsWith("/wiki/")) {
+        const raw = node.attribs.href.slice(6); // strip /wiki/
+        const page = raw.split("#")[0];          // drop anchor fragment
+        const decoded = decodeURIComponent(page);
 
-      // Internal wiki links → React Router Link
-      // Use domToReact for children to handle nested elements (fixes <a><span> crash)
-      if (node.name === "a" && node.attribs.title) {
+        // Skip non-article namespaces — render as plain text
+        if (SKIP_NAMESPACES.some((ns) => decoded.startsWith(ns))) {
+          return <span>{domToReact(node.children, optionsRef.current)}</span>;
+        }
+
         return (
-          <Link to={`/wiki/${node.attribs.href?.slice(2)}`}>
-            {domToReact(node.children, options)}
+          <Link to={`${wikiRoute}/${page}`}>
+            {domToReact(node.children, optionsRef.current)}
           </Link>
         );
       }
 
-      // External links → strip interactivity, render as plain text span
-      if (node.name === "a" && node.attribs.class === "external text") {
-        return <span>{domToReact(node.children, options)}</span>;
+      // All other <a> tags (external, anchors) — strip interactivity
+      if (node.name === "a") {
+        return <span>{domToReact(node.children, optionsRef.current)}</span>;
       }
+    },
+  }), [devMode]); // wikiRoute derives from devMode (stable per route)
 
-      // Clear base href (Wikipedia relative URL anchor)
-      if (node.name === "base") {
-        node.attribs.href = "";
-      }
+  // Memoize parsed content — only re-runs when html string changes, NOT on every timer tick
+  const parsedContent = useMemo(() => {
+    if (!html) return null;
+    return parse(html, optionsRef.current);
+  }, [html]);
 
-      // Prefix relative stylesheet hrefs with Wikipedia CDN
-      if (node.name === "link" && node.attribs.rel === "stylesheet") {
-        node.attribs.href = `//en.wikipedia.org/${node.attribs.href}`;
-      }
+  // Fetch article + wire socket events, both keyed to wikiPage param
+  useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
+    setLoading(true);
+    setHtml("");
+    setSummary(null);
+
+    // Parallel: MediaWiki parse API (full article HTML body) + summary API (thumbnail + description)
+    Promise.all([
+      fetch(
+        `https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(wikiPage)}&format=json&prop=text|displaytitle&origin=*`,
+        { signal }
+      ).then((r) => r.json()),
+      fetch(
+        `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiPage)}`,
+        { signal }
+      ).then((r) => r.json()),
+    ])
+      .then(([parseData, summaryData]) => {
+        if (parseData.parse?.text?.["*"]) {
+          setHtml(parseData.parse.text["*"]);
+        }
+        setSummary(summaryData);
+        setLoading(false);
+        window.scrollTo(0, 0);
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") console.error("Wiki fetch error:", err);
+      });
+
+    const onUpdatePage = (data) => setUserData(data);
+
+    const onEndRound = (winnerData) => {
+      setGameOver(true);
+      setWinner(winnerData);
+      socket.emit("updateTime", { roomCode, time: timeRef.current });
+    };
+
+    const onPopstate = () => navigate(1);
+
+    if (!devMode) {
+      socket.on("updatePage", onUpdatePage);
+      socket.emit("updatePage", { roomCode, wikiPage });
+      socket.on("endRound", onEndRound);
+      window.addEventListener("popstate", onPopstate);
     }
-  };
 
-  return roomCode === "" ? (
-    <Navigate to="/" />
-  ) : (
+    return () => {
+      controller.abort();
+      if (!devMode) {
+        window.removeEventListener("popstate", onPopstate);
+        socket.off("updatePage", onUpdatePage);
+        socket.off("endRound", onEndRound);
+      }
+    };
+  }, [wikiPage]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+
+  if (!devMode && roomCode === "") {
+    return <Navigate to="/" />;
+  }
+
+  const displayTitle =
+    summary?.titles?.normalized || wikiPage.replaceAll("_", " ");
+
+  return (
     <div className="wiki-container">
-      {gameOver ? (
+      {gameOver && (
         <div className="winner-overlay">
-          <h1 className="winner-name">&#127942;{winner["username"]} won!</h1>
-          <p className="winner-time"><b>&#128336; Time</b>	{formatTime(time)}</p>
-          <p className="winner-clicks"><b>&#128433;&#65039; Clicks</b> {winner["clicks"]}</p>
-          <Link to={`/game/${roomCode}`}><button className="overlay-btn">CONTINUE</button></Link>
+          <h1 className="winner-name">&#127942; {winner["username"]} won!</h1>
+          <p className="winner-time">
+            <b>&#128336; Time</b>&nbsp;&nbsp;{formatTime(time)}
+          </p>
+          <p className="winner-clicks">
+            <b>&#128433;&#65039; Clicks</b> {winner["clicks"]}
+          </p>
+          <Link to={`/game/${roomCode}`}>
+            <button className="overlay-btn">CONTINUE</button>
+          </Link>
         </div>
-      ) : null}
+      )}
 
+      {/* Game HUD — fixed top-right badges */}
       <div className="stats-container">
         <Watch time={time} setTime={setTime} gameOver={gameOver} />
-        <div className="target-container">Target: {userData["target"]}</div>
+        <div className="target-container">
+          Target: <strong>{userData["target"] || (devMode ? "—" : "...")}</strong>
+        </div>
       </div>
 
-      <div className="mediawiki ltr sitedir-ltr mw-hide-empty-elt ns-0 ns-subject mw-editables skin-vector action-view skin-vector-legacy minerva--history-page-action-enabled">
-        <div id="content" className="mw-body-content background" role="main">
-          <div id="content" className="mw-body" role="main">
-            <h1 id="firstHeading" className="firstHeading" lang="en">
-              {pageData["title"]}
-            </h1>
+      {/* Wikipedia article */}
+      <div className="wiki-article-wrapper">
+        {loading ? (
+          <div className="wiki-loading">
+            <p>Loading…</p>
+          </div>
+        ) : (
+          <div
+            className="mediawiki ltr sitedir-ltr mw-hide-empty-elt ns-0 ns-subject skin-vector action-view skin-vector-legacy"
+          >
+            <div className="mw-body background" role="main">
+              {/* Article header */}
+              <h1 id="firstHeading" className="firstHeading mw-first-heading">
+                <span className="mw-page-title-main">{displayTitle}</span>
+              </h1>
+              {summary?.description && (
+                <div className="shortdescription noprint" style={{ marginBottom: "0.5em", color: "#54595d", fontSize: "0.875em" }}>
+                  {summary.description}
+                </div>
+              )}
+              <div id="siteSub" className="noprint">From Wikipedia, the free encyclopedia</div>
 
-            <div id="bodyContent" className="mw-body-content"></div>
-            <div id="siteSub" className="noprint">
-              From Wikipedia, the free encyclopedia
-            </div>
-            <div id="contentSub"></div>
-            <div
-              id="mw-content-text"
-              lang="en"
-              dir="ltr"
-              className="mw-content-ltr"
-            >
-              <div>
-                {parse(String(pageData["html"]), options)}
+              {/* Main article content from MediaWiki parse API */}
+              <div id="mw-content-text" className="mw-body-content">
+                <div className="mw-content-ltr mw-parser-output" lang="en" dir="ltr">
+                  {parsedContent}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

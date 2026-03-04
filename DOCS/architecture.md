@@ -4,35 +4,39 @@
 ```
 Lobby (/game/:code)
   → admin clicks PLAY
-  → server: reset all users' clicks/current_page → emit startRound
+  → server: set isRoundActive=true, record roundStartedAt, reset all users' clicks/current_page
+  → emit startRound to all
   → all clients navigate to /wiki/:startPage
 
 Race (/wiki/:page)
-  → player clicks link → WikiPage.js intercepts → emits updatePage
-  → server: increment clicks, update current_page, check win
-  → if winner: emit endRound (winner snapshot) + immediately randomize pages for next round
+  → player clicks link → WikiPage.jsx intercepts → emits updatePage
+  → server: guard on isRoundActive, increment clicks, update current_page, check win
+  → if winner:
+      compute elapsed = Date.now() - roundStartedAt
+      set isRoundActive=false
+      emit endRound (winner snapshot + elapsed time) to room
+      randomize pages for next round
   → winner overlay shown → player clicks CONTINUE → back to Lobby
 ```
 
 ---
 
-## Target Backend: Node.js + Fastify + Socket.IO
+## Backend: Node.js + Fastify + Socket.IO
 
 ### File Structure
 ```
 /backend
   index.js      Fastify server + all socket event handlers
   rooms.js      State module — ONLY place that reads/writes room state
-  data.js       Page pairs + emoji pool (ported from Python data.py)
-  package.json
+  data.js       Page pairs + emoji pool
+  package.json  "type": "module" (ESM)
 ```
 
 ### State Design — `rooms.js`
-All room state is ephemeral in-memory Maps. No database.
+All room state is ephemeral in-memory Maps. Designed for Redis swap (only change `rooms.js`).
 
 ```js
-// rooms.js — these are the only exported functions
-// Swap Redis in here later without changing anything in index.js
+// Exported functions — only interface to state
 getRoom(roomCode)                   → room object or undefined
 setRoom(roomCode, room)             → void
 deleteRoom(roomCode)                → void
@@ -42,42 +46,56 @@ setSocketRoom(socketId, roomCode)   → void
 deleteSocketRoom(socketId)          → void
 ```
 
-Room shape (mirrors old MongoDB document, `_id` renamed to `room_code`):
+### Current Room Shape
 ```js
 {
-  room_code: Number,        // 4-digit int
+  room_code:    Number,        // 4-digit int
   users: {
     [socketId]: {
-      user_id:      String,        // same as socketId for now
+      user_id:      String,    // same as socketId (limitation: breaks on reconnect)
       username:     String,
       admin:        Boolean,
       current_page: String | null,
-      clicks:       Number,        // starts at -1; first updatePage brings it to 0
+      clicks:       Number,    // starts at -1; first updatePage on start page brings to 0
       wins:         Number,
-      time:         Number,
+      time:         Number,    // set by client-emitted updateTime (being replaced)
       emoji:        String
     }
   },
-  start_page:  String,
-  target_page: String,
-  round:       Number,
-  emojis:      String[]    // remaining pool; pop one per user join
+  start_page:   String,
+  target_page:  String,
+  round:        Number,
+  emojis:       String[]       // remaining emoji pool; pop one per user join
 }
 ```
 
-### Socket Event Map (Flask → Node.js)
+### Planned Room Shape (Phase 3)
+```js
+{
+  // ... same as above, plus:
+  isRoundActive:  Boolean,     // true between startRound and endRound; gates updatePage
+  roundStartedAt: Number,      // Date.now() set on startRound; server computes elapsed time
+  // clicks starts at 0 (not -1) once isRoundActive gate is in place
+  // time field removed from user shape (server computes it)
+}
+```
 
-| Flask | Node.js |
-|---|---|
-| `@socketio.on('event')` | `socket.on('event', handler)` inside `io.on('connection')` |
-| `request.sid` | `socket.id` |
-| `join_room(code)` | `socket.join(code)` |
-| `leave_room(code)` | `socket.leave(code)` |
-| `emit('e', d, broadcast=True, room=code)` | `io.to(code).emit('e', d)` |
-| `emit('e', d)` — sender only | `socket.emit('e', d)` |
-| `@socketio.on('disconnect')` | `socket.on('disconnect', handler)` |
+### Socket Event Map
 
-### Handler Logic to Preserve Exactly
+| Event | Direction | Description |
+|-------|-----------|-------------|
+| `join` | client→server | Join or re-join a room |
+| `disconnect` | server internal | Clean up user, transfer admin |
+| `startRound` | client→server | Admin starts the race |
+| `updateRoom` | server→room | Broadcast full room state |
+| `randomizePages` | client→server | Admin picks new random pages |
+| `updatePage` | client→server + server→sender | Player navigated to new page |
+| `updateTime` | client→server | Client pushes elapsed time (being replaced by server-side) |
+| `chatMSG` | bidirectional | Chat message |
+| `endRound` | server→room | Round over, winner announced |
+| `error` | server→sender | Room not found, full, etc. (planned) |
+
+### Handler Logic
 
 **`join`:**
 ```
@@ -102,18 +120,20 @@ if Object.keys(room.users).length === 0 → deleteRoom(roomCode) and return
 if deletedUser.admin → room.users[Object.keys(room.users)[0]].admin = true
 setRoom(roomCode, room)
 io.to(roomCode).emit('updateRoom', roomExport)
-io.to(roomCode).emit('chatMSG', { username:'Bot', emoji:'🤖', message:`${deletedUser.username} left.` })
+io.to(roomCode).emit('chatMSG', { ..., message:`${deletedUser.username} left.` })
 ```
 
 **`updatePage`:**
 ```
+[Phase 3: guard on isRoundActive — if !room.isRoundActive return]
 room.users[socketId].clicks += 1
 room.users[socketId].current_page = page
 setRoom(roomCode, room)
 socket.emit('updatePage', { target: room.target_page })    ← sender only!
 if page.toLowerCase() === room.target_page.toLowerCase():
-    winnerSnapshot = { ...room.users[socketId] }           ← snapshot before incrementing
+    winnerSnapshot = { ...room.users[socketId] }           ← snapshot before wins++
     room.users[socketId].wins += 1
+    room.isRoundActive = false
     room.round += 1
     randomize pages
     setRoom(roomCode, room)
@@ -122,113 +142,103 @@ if page.toLowerCase() === room.target_page.toLowerCase():
 
 **`startRound`:**
 ```
+room.isRoundActive = true
+room.roundStartedAt = Date.now()
 for each userId in room.users:
-    room.users[userId].clicks = -1
+    room.users[userId].clicks = 0    [Phase 3: was -1]
     room.users[userId].current_page = room.start_page
 setRoom(roomCode, room)
 io.to(roomCode).emit('startRound', { startPage: room.start_page })
 ```
 
-**`randomizePages`:**
-```
-pick new [start, target] pair from data.js
-setRoom(roomCode, room)
-io.to(roomCode).emit('updateRoom', roomExport)
-```
+---
 
-**`updateTime`:**
-```
-room.users[socketId].time = data.time
-setRoom(roomCode, room)
-```
+## Frontend: Vite + React
 
-**`chatMSG`:**
+### Component Tree
 ```
-clean message with bad-words Filter
-emoji = room.users[socketId].emoji
-io.to(roomCode).emit('chatMSG', { username, emoji, message })
+App.jsx
+  ├── NewGame.jsx      (userName, roomCode state setters)
+  ├── JoinGame.jsx     (userName, roomCode state setters)
+  ├── Game.jsx         (roomData from updateRoom events)
+  │     ├── Users.jsx  (leaderboard)
+  │     ├── Settings.jsx
+  │     └── Chat.jsx
+  └── WikiPage.jsx     (Wikipedia rendering, timer, win detection)
+        └── Watch.jsx  (stopwatch)
 ```
 
-### Migration Gotchas
+### Socket Lifecycle (current vs planned)
 
-1. **No race conditions** — Node is single-threaded; in-memory Map mutations are atomic. No mutex needed.
+**Current**: `Socket.js` creates singleton and connects on import — socket is live before user enters username. Re-connect re-emits `join` via `socket.on('connect')` in `Game.jsx`.
 
-2. **`clicks` starts at -1** — `updatePage` fires on the start page load too, so the first real link click shows clicks=0. Preserve this intentional behavior.
+**Planned (Phase 3)**: Socket connects lazily when user enters a game. `Socket.js` exports `socket` with `autoConnect: false`; `Game.jsx` calls `socket.connect()` on mount and `socket.disconnect()` on unmount.
 
-3. **`endRound` sends pre-increment snapshot** — capture `{ ...room.users[socketId] }` before `wins += 1`, emit the snapshot. This is what Flask does (reads user, then increments).
+### Wikipedia Rendering (current — post Phase 3a)
 
-4. **`updatePage` emits to sender only** — `socket.emit` not `io.to(room).emit`. Only the navigating player receives the target confirmation.
+`WikiPage.jsx` uses **two parallel fetches** per page navigation:
 
-5. **Admin transfer uses insertion order** — `Object.keys(room.users)[0]` gives the first-joined remaining user, matching Python's `next(iter(self.users))`.
+1. **`w/api.php?action=parse&prop=text|displaytitle&origin=*`** — returns JSON with `parse.text["*"]` containing a clean `<div class="mw-parser-output">` body (no `<html>/<head>/<body>` wrappers). Internal links use `href="/wiki/Page_Name"` format.
 
-6. **roomCode type normalization** — Frontend sends roomCode as string (from URL params). Normalize: `const code = parseInt(data.roomCode, 10)`. Use Number as Map key consistently.
+2. **`api/rest_v1/page/summary/{title}`** — returns `thumbnail.source`, `description`, `titles.normalized` for the article header.
 
-7. **Profanity filter** — Replace Python `better-profanity` with npm `bad-words`: `new Filter().clean(message)`.
+`html-react-parser` options (memoized via `useRef` + `useMemo`):
+- `<a href="/wiki/Page">` → `<Link to="/wiki/Page">` (game navigation) or `<Link to="/preview/Page">` (dev mode)
+- Skip `File:`, `Help:`, `Wikipedia:`, `Special:`, `Template:`, `Category:`, `Talk:`, `Portal:`, `User:`, `Draft:` namespaces → `<span>`
+- All other `<a>` → `<span>` (strips external links)
+- Anchor fragments stripped from page names
 
-8. **REST endpoint** — Replace `/validation_data` (returns ALL rooms — a security/perf problem) with `GET /rooms/:code/exists` → `{ exists: Boolean }`. Update `NewGame.js` + `JoinGame.js`.
+Parsed content is **memoized**: `useMemo([html])` — only re-parses when html string changes, not on every timer tick.
 
-9. **ROOM_LIMIT** — cap at 8 users. Check on join: `if Object.keys(room.users).length >= 8 → emit error to sender, return`.
+**CSS**: `index.html` loads Wikipedia Vector skin CSS. `WikiPage.css` adds infobox, TOC, wikitable, and thumb styles from `MediaWiki:Common.css` (not included in the Vector skin bundle). Article font resets global `Roboto Mono` to Wikipedia's sans-serif stack.
+
+Note: `rest_v1/page/mobile-sections` is **decommissioned** (HTTP 403, Phabricator T328036).
 
 ---
 
-## Target Frontend: Vite + React
+## Architectural Audit Findings
 
-### CRA → Vite Migration Steps
-1. Remove `react-scripts` from `package.json`
-2. Install `vite` + `@vitejs/plugin-react`
-3. Add `frontend/vite.config.js`:
-   ```js
-   import { defineConfig } from 'vite'
-   import react from '@vitejs/plugin-react'
-   export default defineConfig({ plugins: [react()] })
-   ```
-4. Move `frontend/public/index.html` → `frontend/index.html`
-5. Replace CRA `%PUBLIC_URL%` and script tag in `index.html`:
-   ```html
-   <script type="module" src="/src/index.jsx"></script>
-   ```
-6. Rename `src/index.js` → `src/index.jsx`
-7. Update `package.json` scripts:
-   ```json
-   "dev": "vite",
-   "build": "vite build",
-   "preview": "vite preview"
-   ```
-8. Update `.claude/launch.json` frontend port to 5173, command to `npm run dev`
+Findings from the audit conducted after Phase 2, informing Phase 3+ work.
 
-### Do Not Touch During Migration
-- All `src/components/` files — zero logic changes
-- Wikipedia fetch in `WikiPage.js`
-- Link interception `replace` function in `WikiPage.js`
-- All socket event names and payloads
-- `src/App.js` routing structure
+### Critical (affecting correctness)
 
-### Frontend State Shape (unchanged)
-- `App.js` — `userName`, `roomCode` held at top level, passed as props
-- `Game.js` — `roomData` from `updateRoom` events; note `.data` nesting: `roomData.data.users`, `roomData.data.start_page`
-- `WikiPage.js` — `pageData` (HTML), `userData` (target), `time`, `winner`
-- `Socket.js` — singleton, connects on import; change `backend_url` here; post-Vite use `import.meta.env.VITE_BACKEND_URL`
+| Issue | Impact | Fix |
+|-------|--------|-----|
+| `clicks: -1` implicit contract | Confusing leaderboard during lobby; breaks if start-page `updatePage` fires after win | Gate on `isRoundActive`, start at 0 |
+| No `isRoundActive` guard on `updatePage` | Extra clicks counted in lobby; clicks counted after round ends | Add `isRoundActive` boolean, gate server-side |
+| `updateTime` client-push | Stale closure risk (patched with `useRef`, but fragile); client can spoof time | Server records `roundStartedAt`, computes elapsed on `endRound` |
+| No AbortController on Wikipedia fetch | In-flight fetch resolves after user navigates away; sets state on unmounted component | Add `AbortController`, abort in cleanup |
 
-### Known Frontend Bugs (fix after migration)
-- `Game.js:33` + `WikiPage.js:55` — popstate listener never cleaned up (arrow fn ref mismatch)
-- `Game.js` — socket reconnect doesn't re-emit `join`; user silently leaves room
-- `WikiPage.js` — stale `time` closure in `endRound`; `updateTime` always sends 1
-- `WikiPage.js` — `node.children[0].data` crashes on nested `<a><span>` children
-- `Game.js:14` — **FIXED**: optional chaining on `socket.id` admin lookup
+### Performance
 
----
+| Issue | Impact | Fix |
+|-------|--------|-----|
+| Full Wikipedia HTML document (`rest_v1/page/html`) | ~2–5× larger payload; includes scripts, full stylesheet links | Switch to `mobile-sections` |
+| Re-parse entire HTML every second (timer re-render) | CPU on every tick; jank on large articles | `useMemo` on `options` and `parse` result |
+| `options` object recreated every render | `html-react-parser` gets new options ref on each parse | `useMemo` |
+| No page cache | Navigating back re-fetches same page | Client-side `Map` cache (Phase 6) |
 
-## HTML Parsing in WikiPage.js (unchanged)
-`html-react-parser` replace function handles:
-- `<a title="...">` → `<Link to="/wiki/{href}">` (internal wiki links become game navigation)
-- `<a class="external text">` → `<span>` (strips external links of interactivity)
-- `<base>` → clears href
-- `<link rel="stylesheet">` → prepends `//en.wikipedia.org/` to load Wikipedia CSS from CDN
+### Scalability / Modularity
+
+| Issue | Impact | Fix |
+|-------|--------|-----|
+| `user_id = socketId` | User identity resets on reconnect; no persistent identity across rooms | Acceptable for now; document limitation |
+| Emoji pool can empty | 8 emojis pre-sampled; 9th join has no emoji | Expand pool or cycle through all emojis |
+| Socket connects on import | Socket open before user enters username | Lazy connect in `Game.jsx` |
+| Recursive room code picker | Unlikely but theoretically infinite loop | Replace with loop + fallback |
+
+### Bundle Size
+
+| Issue | Impact | Fix |
+|-------|--------|-----|
+| MUI for `SendIcon` only | ~300KB added to bundle for one icon | Inline SVG or lightweight icon lib |
 
 ---
 
 ## Deployment
-- **Backend**: Railway, single Node process. `process.env.PORT` (Railway sets this automatically).
+
+- **Backend**: Railway, single Node process. `process.env.PORT` auto-set by Railway.
 - **Frontend**: `npm run build` → `/dist` → Vercel or Netlify
-- **Env vars (backend)**: `PORT` (Railway auto-sets), no others needed for in-memory state
+- **Env vars (backend)**: `PORT` (auto), no others needed for in-memory state
 - **Env vars (frontend)**: `VITE_BACKEND_URL` pointing to Railway URL
+- **No race conditions** in state — Node is single-threaded; in-memory Map mutations are atomic
